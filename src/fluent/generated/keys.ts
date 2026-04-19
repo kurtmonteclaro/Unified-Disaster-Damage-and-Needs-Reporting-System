@@ -63,6 +63,11 @@ declare global {
                         table: 'sys_properties'
                         id: '73f1eff882dd49959549c726ab3075a9'
                     }
+                    'app.css': {
+                        table: 'sys_ux_theme_asset'
+                        id: '9f16fcbe513347fc8ddc93235557bb79'
+                        deleted: true
+                    }
                     auto_priority_prop: {
                         table: 'sys_properties'
                         id: '493dc2d4e167444ca014d0466de0148f'

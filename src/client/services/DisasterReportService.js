@@ -3,14 +3,14 @@ export class DisasterReportService {
         this.tableName = 'x_2002275_unified_disaster_report'
     }
 
-    // Map form data to table field names and values
+    // Map form data to ServiceNow table schema
     mapFormDataToTable(formData) {
-        // Map region display names to choice keys
+        // Map region display values to choice keys
         const regionMapping = {
             'NCR': 'ncr_national_capital_region',
             'CAR': 'car',
             'Region I': 'region_1',
-            'Region II': 'region_2', 
+            'Region II': 'region_2',
             'Region III': 'region_3',
             'Region IV-A': 'region_4a',
             'Region IV-B': 'region_4b',
@@ -29,72 +29,71 @@ export class DisasterReportService {
         // Map status values
         const statusMapping = {
             'reported': 'new',
-            'ongoing': 'in_progress', 
+            'ongoing': 'in_progress',
             'resolved': 'resolved'
         }
 
         return {
-            // Reporter info
-            reporter_name: formData.reporter_name,
-            reporter_role: formData.reporter_role,
-            contact_number: formData.contact_number,
+            // Reporter information
+            reporter_name: formData.reporter_name || '',
+            reporter_role: formData.reporter_role || 'citizen',
+            contact_number: formData.contact_number || '',
             
-            // Incident info
-            disaster_type: formData.disaster_type,
-            incident_date: formData.incident_date,
-            severity: formData.severity,
-            status: statusMapping[formData.status] || formData.status,
+            // Incident details
+            disaster_type: formData.disaster_type || '',
+            incident_date: formData.incident_date || new Date().toISOString().split('T')[0],
+            severity: formData.severity || 'medium',
+            status: statusMapping[formData.status] || formData.status || 'new',
+            description: formData.description || 'No description provided',
             
-            // Location - map to correct field names
-            region: regionMapping[formData.region] || formData.region,
-            province: formData.province,
-            municipality: formData.city, // Form uses 'city' but table expects 'municipality'
-            city_municipality: formData.city, // Also populate this field
-            
-            // Impact assessment
-            people_affected: formData.people_affected || 0,
-            houses_damaged: formData.houses_damaged || 0,
-            
-            // Description and details
-            description: formData.description || '',
+            // Location (map to table fields)
+            region: regionMapping[formData.region] || formData.region || '',
+            province: formData.province || '',
+            municipality: formData.city || '',
+            city_municipality: formData.city || '',
             
             // Required fields with defaults
-            damage_description: formData.description || 'Disaster report submitted via web portal',
-            location_description: `${formData.city}, ${formData.province}, ${formData.region}`,
-            damage_severity: 'moderate', // Default value
-            reported_at: new Date().toISOString(),
-            verification_status: 'pending'
+            damage_description: formData.description || 'Damage assessment pending',
+            location_description: `${formData.city || ''}, ${formData.province || ''}, ${formData.region || ''}`.replace(/^,\s*|,\s*$/g, ''),
+            damage_severity: 'moderate', // Default severity
+            
+            // Impact data
+            people_affected: parseInt(formData.people_affected) || 0,
+            houses_damaged: parseInt(formData.houses_damaged) || 0,
+            
+            // Set default values for verification workflow
+            verification_status: 'pending',
+            response_status: 'no_response',
+            has_multimedia: false
         }
     }
 
-    // Return all disaster reports with comprehensive error handling
-    async list(filters = {}) {
+    // Return all disaster reports
+    async list() {
         try {
-            const searchParams = new URLSearchParams(filters)
+            const searchParams = new URLSearchParams()
             searchParams.set('sysparm_display_value', 'all')
-            searchParams.set('sysparm_fields', 'sys_id,number,disaster_type,incident_date,severity,status,region,province,municipality,city_municipality,people_affected,houses_damaged,reporter_name,contact_number,description,sys_created_on')
-            searchParams.set('sysparm_query', 'ORDERBYDESCsys_created_on')
+            searchParams.set('sysparm_fields', 'sys_id,number,reporter_name,reporter_role,disaster_type,severity,status,region,province,municipality,city_municipality,people_affected,houses_damaged,incident_date,description,contact_number')
+            searchParams.set('sysparm_query', 'ORDERBYDESCincident_date')
+
+            console.log('Fetching disaster reports from:', `/api/now/table/${this.tableName}`)
 
             const response = await fetch(`/api/now/table/${this.tableName}?${searchParams.toString()}`, {
                 method: 'GET',
                 headers: {
-                    'Accept': 'application/json',
+                    Accept: 'application/json',
                     'X-UserToken': window.g_ck,
                 },
             })
 
             if (!response.ok) {
-                let errorMessage = `HTTP error ${response.status}`
-                try {
-                    const errorData = await response.json()
-                    errorMessage = errorData.error?.message || errorMessage
-                } catch (e) {
-                    // If we can't parse the error response, use the default message
-                }
-                throw new Error(errorMessage)
+                const errorData = await response.json().catch(() => ({}))
+                console.error('API Error:', errorData)
+                throw new Error(errorData.error?.message || `HTTP error ${response.status}`)
             }
 
             const { result } = await response.json()
+            console.log('Disaster reports loaded:', result?.length || 0)
             return result || []
         } catch (error) {
             console.error('Error fetching disaster reports:', error)
@@ -111,20 +110,14 @@ export class DisasterReportService {
             const response = await fetch(`/api/now/table/${this.tableName}/${sysId}?${searchParams.toString()}`, {
                 method: 'GET',
                 headers: {
-                    'Accept': 'application/json',
+                    Accept: 'application/json',
                     'X-UserToken': window.g_ck,
                 },
             })
 
             if (!response.ok) {
-                let errorMessage = `HTTP error ${response.status}`
-                try {
-                    const errorData = await response.json()
-                    errorMessage = errorData.error?.message || errorMessage
-                } catch (e) {
-                    // If we can't parse the error response, use the default message
-                }
-                throw new Error(errorMessage)
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.error?.message || `HTTP error ${response.status}`)
             }
 
             const { result } = await response.json()
@@ -138,35 +131,27 @@ export class DisasterReportService {
     // Create a new disaster report
     async create(data) {
         try {
-            // Map form data to table fields
-            const tableData = this.mapFormDataToTable(data)
-            
-            console.log('Sending data to ServiceNow:', tableData) // Debug log
+            const mappedData = this.mapFormDataToTable(data)
+            console.log('Sending data to ServiceNow:', mappedData)
 
             const response = await fetch(`/api/now/table/${this.tableName}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json',
+                    Accept: 'application/json',
                     'X-UserToken': window.g_ck,
                 },
-                body: JSON.stringify(tableData),
+                body: JSON.stringify(mappedData),
             })
 
             if (!response.ok) {
-                let errorMessage = `HTTP error ${response.status}`
-                try {
-                    const errorData = await response.json()
-                    errorMessage = errorData.error?.message || `HTTP ${response.status}: ${errorData.error?.detail || 'Unknown error'}`
-                    console.error('ServiceNow error response:', errorData) // Debug log
-                } catch (e) {
-                    console.error('Could not parse error response:', e)
-                }
-                throw new Error(errorMessage)
+                const errorData = await response.json().catch(() => ({}))
+                console.error('ServiceNow error response:', errorData)
+                throw new Error(errorData.error?.message || 'Operation Failed')
             }
 
             const result = await response.json()
-            console.log('ServiceNow success response:', result) // Debug log
+            console.log('Disaster report created successfully:', result)
             return result
         } catch (error) {
             console.error('Error creating disaster report:', error)
@@ -177,27 +162,21 @@ export class DisasterReportService {
     // Update a disaster report
     async update(sysId, data) {
         try {
-            const tableData = this.mapFormDataToTable(data)
-            
+            const mappedData = this.mapFormDataToTable(data)
+
             const response = await fetch(`/api/now/table/${this.tableName}/${sysId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json',
+                    Accept: 'application/json',
                     'X-UserToken': window.g_ck,
                 },
-                body: JSON.stringify(tableData),
+                body: JSON.stringify(mappedData),
             })
 
             if (!response.ok) {
-                let errorMessage = `HTTP error ${response.status}`
-                try {
-                    const errorData = await response.json()
-                    errorMessage = errorData.error?.message || errorMessage
-                } catch (e) {
-                    // If we can't parse the error response, use the default message
-                }
-                throw new Error(errorMessage)
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.error?.message || `HTTP error ${response.status}`)
             }
 
             return response.json()
@@ -213,110 +192,19 @@ export class DisasterReportService {
             const response = await fetch(`/api/now/table/${this.tableName}/${sysId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Accept': 'application/json',
+                    Accept: 'application/json',
                     'X-UserToken': window.g_ck,
                 },
             })
 
             if (!response.ok) {
-                let errorMessage = `HTTP error ${response.status}`
-                try {
-                    const errorData = await response.json()
-                    errorMessage = errorData.error?.message || errorMessage
-                } catch (e) {
-                    // If we can't parse the error response, use the default message
-                }
-                throw new Error(errorMessage)
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.error?.message || `HTTP error ${response.status}`)
             }
 
             return response.ok
         } catch (error) {
             console.error(`Error deleting disaster report ${sysId}:`, error)
-            throw error
-        }
-    }
-
-    // Get reports summary for analytics
-    async getSummary() {
-        try {
-            const reports = await this.list()
-            
-            const summary = {
-                totalReports: reports.length,
-                byDisasterType: {},
-                bySeverity: { low: 0, medium: 0, high: 0 },
-                byStatus: { new: 0, in_progress: 0, resolved: 0 },
-                byRegion: {},
-                totalPeopleAffected: 0,
-                totalHousesDamaged: 0,
-                totalEstimatedCost: 0
-            }
-
-            reports.forEach(report => {
-                // Extract values properly from ServiceNow objects
-                const disasterType = typeof report.disaster_type === 'object' 
-                    ? report.disaster_type.display_value 
-                    : report.disaster_type
-
-                const severity = typeof report.severity === 'object' 
-                    ? report.severity.display_value 
-                    : report.severity
-
-                const status = typeof report.status === 'object' 
-                    ? report.status.display_value 
-                    : report.status
-
-                const region = typeof report.region === 'object' 
-                    ? report.region.display_value 
-                    : report.region
-
-                // Count by disaster type
-                if (disasterType) {
-                    summary.byDisasterType[disasterType] = (summary.byDisasterType[disasterType] || 0) + 1
-                }
-
-                // Count by severity
-                if (severity && summary.bySeverity.hasOwnProperty(severity)) {
-                    summary.bySeverity[severity]++
-                }
-
-                // Count by status
-                if (status) {
-                    // Map ServiceNow status values back to our expected keys
-                    let mappedStatus = status
-                    if (status === 'New') mappedStatus = 'new'
-                    if (status === 'In Progress') mappedStatus = 'in_progress'
-                    if (status === 'Resolved') mappedStatus = 'resolved'
-                    
-                    if (summary.byStatus.hasOwnProperty(mappedStatus)) {
-                        summary.byStatus[mappedStatus]++
-                    }
-                }
-
-                // Count by region
-                if (region) {
-                    summary.byRegion[region] = (summary.byRegion[region] || 0) + 1
-                }
-
-                // Sum totals
-                const peopleAffected = parseFloat(
-                    typeof report.people_affected === 'object' 
-                        ? report.people_affected.display_value 
-                        : report.people_affected
-                ) || 0
-                summary.totalPeopleAffected += peopleAffected
-
-                const housesDamaged = parseFloat(
-                    typeof report.houses_damaged === 'object' 
-                        ? report.houses_damaged.display_value 
-                        : report.houses_damaged
-                ) || 0
-                summary.totalHousesDamaged += housesDamaged
-            })
-
-            return summary
-        } catch (error) {
-            console.error('Error generating reports summary:', error)
             throw error
         }
     }
