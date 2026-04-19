@@ -1,0 +1,9 @@
+{
+    "scope": "x_2002275_unified",
+    "scopeId": "c02a2f190f9003107e504bc530d1b2f3",
+    "name": "Unified Disaster Damage and Needs Reporting System",
+    "licensing": {
+        "enforceLicense": "none"
+    },
+    "description": "Unified Disaster Damage and Needs Reporting System (UDDNRS) is a digital system that standardizes and collects post-disaster damage and needs reports from citizens, LGUs, and national agencies into one unified format. Post-disaster self-reports vary (photos, narratives), making rapid national aggregation for relief targeting and rehabilitation planning difficult; plans call for harmonized indicators and reporting but field submissions remain heterogeneous. It improves consistency of data and enables faster and more organized decision-making for disaster response and recovery."
+}

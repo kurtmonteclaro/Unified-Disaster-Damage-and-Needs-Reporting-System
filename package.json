@@ -1,0 +1,23 @@
+{
+  "name": "x-2002275-uddnrs",
+  "version": "1.0.0",
+  "description": "Unified Disaster Damage and Needs Reporting System (UDDNRS) is a digital system that standardizes and collects post-disaster damage and needs reports from citizens, LGUs, and national agencies into one unified format. Post-disaster self-reports vary (photos, narratives), making rapid national aggregation for relief targeting and rehabilitation planning difficult; plans call for harmonized indicators and reporting but field submissions remain heterogeneous. It improves consistency of data and enables faster and more organized decision-making for disaster response and recovery.",
+  "license": "UNLICENSED",
+  "scripts": {
+    "build": "now-sdk build",
+    "deploy": "now-sdk install",
+    "transform": "now-sdk transform",
+    "types": "now-sdk dependencies"
+  },
+  "devDependencies": {
+    "@servicenow/sdk": "4.6.0",
+    "@servicenow/glide": "26.0.1",
+    "eslint": "8.50.0",
+    "@servicenow/eslint-plugin-sdk-app-plugin": "4.6.0",
+    "@servicenow/isomorphic-rollup": "^1.2.3"
+  },
+  "dependencies": {
+    "react": "19.x",
+    "react-dom": "19.x"
+  }
+}
