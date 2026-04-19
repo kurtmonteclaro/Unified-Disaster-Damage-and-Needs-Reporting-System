@@ -123,6 +123,10 @@ declare global {
                         table: 'sys_app_module'
                         id: '118c9114354e443fa5d3421765f59ac8'
                     }
+                    ea5b42d60f50c3107e504bc530d1b247: {
+                        table: 'sys_scope_privilege'
+                        id: 'ea5b42d60f50c3107e504bc530d1b247'
+                    }
                     geo_validation_prop: {
                         table: 'sys_properties'
                         id: '80d491f451784e0b87f4ec5958e25125'
