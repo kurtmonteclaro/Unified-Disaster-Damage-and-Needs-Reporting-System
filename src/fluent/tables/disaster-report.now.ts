@@ -237,6 +237,12 @@ export const x_2002275_unifie_0_disaster_report = Table({
             default: 0, // Provide default
         }),
 
+        estimated_damage_cost: StringColumn({
+            label: 'Estimated Damage Cost (PHP)',
+            maxLength: 40,
+            mandatory: false,
+        }),
+
         immediate_needs: StringColumn({
             label: 'Immediate Needs',
             maxLength: 4000,
