@@ -4,7 +4,8 @@ export const ROLES = {
     CITIZEN: 'citizen', 
     LGU_OFFICER: 'lgu_officer',
     NATIONAL_AGENCY: 'national_agency',
-    ADMIN: 'admin'
+    APP_ADMIN: 'app_admin',
+    ADMIN: 'app_admin'
 }
 
 export const ROLE_DISPLAY_NAMES = {
@@ -12,7 +13,7 @@ export const ROLE_DISPLAY_NAMES = {
     [ROLES.CITIZEN]: 'Citizen',
     [ROLES.LGU_OFFICER]: 'LGU Officer', 
     [ROLES.NATIONAL_AGENCY]: 'National Agency',
-    [ROLES.ADMIN]: 'Administrator'
+    [ROLES.APP_ADMIN]: 'Application Admin'
 }
 
 export const ROLE_COLORS = {
@@ -20,7 +21,7 @@ export const ROLE_COLORS = {
     [ROLES.CITIZEN]: '#10b981',
     [ROLES.LGU_OFFICER]: '#f59e0b',
     [ROLES.NATIONAL_AGENCY]: '#3b82f6',
-    [ROLES.ADMIN]: '#ef4444'
+    [ROLES.APP_ADMIN]: '#ef4444'
 }
 
 // Permission groups
@@ -75,7 +76,7 @@ export const ROLE_PERMISSIONS = {
         PERMISSIONS.VERIFY_REPORTS,
         PERMISSIONS.VIEW_ANALYTICS
     ],
-    [ROLES.ADMIN]: [
+    [ROLES.APP_ADMIN]: [
         ...Object.values(PERMISSIONS)
     ]
 }
@@ -87,7 +88,7 @@ export const hasPermission = (userRole, permission) => {
 }
 
 export const isStaffRole = (role) => {
-    return [ROLES.LGU_OFFICER, ROLES.NATIONAL_AGENCY, ROLES.ADMIN].includes(role)
+    return [ROLES.LGU_OFFICER, ROLES.NATIONAL_AGENCY, ROLES.APP_ADMIN].includes(role)
 }
 
 export const isPublicRole = (role) => {

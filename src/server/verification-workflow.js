@@ -1,14 +1,14 @@
 import { gs, GlideDateTime } from '@servicenow/glide'
 
 export function sendHighPriorityNotification(current) {
-    const priority = current.getValue('priority')
-    const severity = current.getValue('severity')
+    const priority = current.getValue('priority_level')
+    const severity = current.getValue('damage_severity')
     
-    // Send notification for high priority reports (priority 1-2)
-    if (priority === '1' || priority === '2' || severity === 'high') {
+    // Send notification for high priority reports
+    if (priority === 'critical' || priority === 'high' || severity === 'catastrophic' || severity === 'severe') {
         const reportNumber = current.getValue('number') || 'New Report'
-        const location = `${current.getValue('municipality') || current.getValue('city_municipality') || 'Unknown'}, ${current.getValue('province') || 'Unknown'}, ${current.getValue('region') || 'Unknown'}`
-        const disasterType = current.getValue('disaster_type')
+        const location = `${current.getValue('municipality') || 'Unknown'}, ${current.getValue('province') || 'Unknown'}, ${current.getValue('region') || 'Unknown'}`
+        const disasterType = current.getValue('damage_type')
         
         gs.addInfoMessage(`High priority disaster report ${reportNumber} submitted for ${disasterType} in ${location}`)
         
@@ -38,19 +38,14 @@ export function processVerificationUpdate(current) {
         switch (verificationStatus) {
             case 'verified':
                 gs.addInfoMessage(`Disaster report ${reportNumber} has been verified`)
-                // Update status to in_progress if currently new
-                if (current.getValue('status') === 'new') {
-                    current.setValue('status', 'in_progress')
-                }
                 break
                 
             case 'rejected':
                 gs.addInfoMessage(`Disaster report ${reportNumber} has been rejected`)
-                current.setValue('status', 'resolved')
                 break
                 
-            case 'needs_info':
-                gs.addInfoMessage(`Additional information requested for report ${reportNumber}`)
+            case 'resolved':
+                gs.addInfoMessage(`Disaster report ${reportNumber} has been resolved`)
                 break
         }
         

@@ -4,7 +4,7 @@ import { Role } from '@servicenow/sdk/core'
 // Citizens who can submit disaster reports
 export const citizen_reporter_role = Role({
     $id: Now.ID['role_citizen_reporter'],
-    name: 'x_2002275_unified.citizen_reporter',
+    name: 'x_2002275_unified.citizen',
     description: 'Citizens who can submit disaster damage reports'
 })
 
@@ -25,6 +25,6 @@ export const national_agency_role = Role({
 // System administrators
 export const uddnrs_admin_role = Role({
     $id: Now.ID['role_uddnrs_admin'],
-    name: 'x_2002275_unified.admin',
-    description: 'UDDNRS System administrators with full access'
+    name: 'x_2002275_unified.app_admin',
+    description: 'Application administrators with full access'
 })

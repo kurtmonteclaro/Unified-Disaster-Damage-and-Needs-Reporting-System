@@ -26,7 +26,7 @@ export const x_2002275_unified_disaster_report = Table({
             mandatory: true,
         }),
 
-        reporter_role: ChoiceColumn({
+        reporter_type: ChoiceColumn({
             choices: {
                 citizen: {
                     label: 'Citizen',
@@ -42,12 +42,13 @@ export const x_2002275_unified_disaster_report = Table({
                 },
             },
             dropdown: 'dropdown_without_none',
-            label: 'Reporter Role',
+            label: 'Reporter Type',
+            default: 'citizen',
         }),
 
-        contact_number: StringColumn({
-            label: 'Contact Number',
-            maxLength: 50,
+        reporter_contact: StringColumn({
+            label: 'Reporter Contact',
+            maxLength: 100,
         }),
 
         // Location information - made optional to avoid validation issues
@@ -140,14 +141,26 @@ export const x_2002275_unified_disaster_report = Table({
             mandatory: false, // Made optional
         }),
 
-        city_municipality: StringColumn({
-            label: 'City / Municipality',
+        barangay: StringColumn({
+            label: 'Barangay',
             maxLength: 100,
             mandatory: false, // Made optional
         }),
 
+        latitude: StringColumn({
+            label: 'Latitude',
+            maxLength: 38,
+            mandatory: false,
+        }),
+
+        longitude: StringColumn({
+            label: 'Longitude',
+            maxLength: 38,
+            mandatory: false,
+        }),
+
         // Incident information
-        disaster_type: ChoiceColumn({
+        damage_type: ChoiceColumn({
             choices: {
                 earthquake: {
                     label: 'Earthquake',
@@ -161,37 +174,25 @@ export const x_2002275_unified_disaster_report = Table({
                     label: 'Landslide',
                     sequence: 3,
                 },
-                typhoon: {
-                    label: 'Typhoon',
+                storm: {
+                    label: 'Storm',
                     sequence: 1,
                 },
                 fire: {
                     label: 'Fire',
                     sequence: 4,
                 },
-                volcanic_eruption: {
-                    label: 'Volcanic Eruption',
+                infrastructure_damage: {
+                    label: 'Infrastructure Damage',
                     sequence: 5,
-                },
-                storm_surge: {
-                    label: 'Storm Surge',
-                    sequence: 6,
-                },
-                tornado: {
-                    label: 'Tornado',
-                    sequence: 7,
-                },
-                drought: {
-                    label: 'Drought',
-                    sequence: 8,
                 },
                 other: {
                     label: 'Other',
-                    sequence: 9,
+                    sequence: 6,
                 },
             },
             dropdown: 'dropdown_without_none',
-            label: 'Disaster Type',
+            label: 'Damage Type',
         }),
 
         incident_date: DateTimeColumn({
@@ -199,12 +200,8 @@ export const x_2002275_unified_disaster_report = Table({
             mandatory: false, // Made optional to avoid validation issues
         }),
 
-        severity: ChoiceColumn({
+        priority_level: ChoiceColumn({
             choices: {
-                high: {
-                    label: 'High',
-                    sequence: 2,
-                },
                 low: {
                     label: 'Low',
                     sequence: 0,
@@ -213,69 +210,59 @@ export const x_2002275_unified_disaster_report = Table({
                     label: 'Medium',
                     sequence: 1,
                 },
-            },
-            dropdown: 'dropdown_without_none',
-            label: 'Severity',
-            default: 'medium', // Provide default
-        }),
-
-        status: ChoiceColumn({
-            choices: {
-                new: {
-                    label: 'New',
-                    sequence: 0,
-                },
-                in_progress: {
-                    label: 'In Progress',
-                    sequence: 1,
-                },
-                resolved: {
-                    label: 'Resolved',
+                high: {
+                    label: 'High',
                     sequence: 2,
                 },
-                closed: {
-                    label: 'Closed',
+                critical: {
+                    label: 'Critical',
                     sequence: 3,
                 },
             },
             dropdown: 'dropdown_without_none',
-            label: 'Status',
-            default: 'new',
+            label: 'Priority Level',
+            default: 'medium', // Provide default
         }),
 
         // Impact assessment
-        people_affected: IntegerColumn({
-            label: 'People Affected',
+        affected_individuals: IntegerColumn({
+            label: 'Affected Individuals',
             maxLength: 255,
             default: 0, // Provide default
         }),
 
-        houses_damaged: IntegerColumn({
-            label: 'Houses Damaged',
+        affected_households: IntegerColumn({
+            label: 'Affected Households',
             maxLength: 255,
             default: 0, // Provide default
         }),
 
-        // Description and details
-        description: StringColumn({
-            label: 'Description',
+        immediate_needs: StringColumn({
+            label: 'Immediate Needs',
             maxLength: 4000,
             mandatory: false, // Made optional
         }),
 
-        // Auto-populated fields with defaults
         damage_description: StringColumn({
             label: 'Damage Description',
             maxLength: 4000,
             mandatory: false, // Made optional
-            default: 'Disaster report submitted via web portal',
         }),
 
         location_description: StringColumn({
             label: 'Location Description',
-            maxLength: 255,
+            maxLength: 4000,
             mandatory: false, // Made optional
-            default: 'Location details provided in report',
+        }),
+
+        has_multimedia: ChoiceColumn({
+            label: 'Has Multimedia',
+            choices: {
+                false: { label: 'False', sequence: 0 },
+                true: { label: 'True', sequence: 1 },
+            },
+            dropdown: 'dropdown_without_none',
+            default: 'false',
         }),
 
         damage_severity: ChoiceColumn({
@@ -304,12 +291,6 @@ export const x_2002275_unified_disaster_report = Table({
             default: 'pending',
         }),
 
-        // Timestamps
-        reported_at: DateTimeColumn({
-            label: 'Reported At',
-            mandatory: false, // Made optional
-            default: 'javascript:new GlideDateTime().getDisplayValue();',
-        }),
     },
 
     // Critical settings for API access and cross-scope permissions

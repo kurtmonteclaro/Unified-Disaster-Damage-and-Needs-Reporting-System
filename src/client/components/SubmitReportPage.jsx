@@ -184,7 +184,6 @@ export default function SubmitReportPage({ onSuccess }) {
                                         <option value="citizen">Citizen</option>
                                         <option value="lgu_officer">LGU Officer</option>
                                         <option value="national_agency">National Agency</option>
-                                        <option value="ngo_volunteer">NGO Volunteer</option>
                                     </select>
                                 </div>
                             </div>

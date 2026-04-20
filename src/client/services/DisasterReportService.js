@@ -3,6 +3,17 @@ export class DisasterReportService {
         this.tableName = 'x_2002275_unified_disaster_report'
     }
 
+    static formatLocation(report) {
+        const parts = [
+            report.barangay,
+            report.municipality || report.city_municipality,
+            report.province,
+            report.region,
+        ].filter(Boolean)
+
+        return parts.join(', ') || report.location_description || 'Location not provided'
+    }
+
     // Map form data to ServiceNow table schema
     mapFormDataToTable(formData) {
         // Map region display values to choice keys
@@ -33,38 +44,80 @@ export class DisasterReportService {
             'resolved': 'resolved'
         }
 
+        const disasterTypeMapping = {
+            typhoon: 'storm',
+            volcanic_eruption: 'other',
+            storm_surge: 'storm',
+            tornado: 'storm',
+            drought: 'other',
+        }
+
+        const verificationStatusMapping = {
+            reported: 'pending',
+            ongoing: 'verified',
+            resolved: 'resolved',
+            new: 'pending',
+            in_progress: 'verified',
+        }
+
+        const priorityByDamageSeverity = {
+            minimal: 'low',
+            moderate: 'medium',
+            severe: 'high',
+            catastrophic: 'critical',
+        }
+
+        const incidentDate = formData.incident_date || new Date().toISOString()
+        const municipality = formData.municipality || formData.city || ''
+        const reporterType = formData.reporter_type || formData.reporter_role || 'citizen'
+        const reporterContact = formData.reporter_contact || formData.contact_number || ''
+        const rawDamageType = formData.damage_type || formData.disaster_type || ''
+        const damageType = disasterTypeMapping[rawDamageType] || rawDamageType
+        const damageSeverity = formData.damage_severity || 'moderate'
+        const verificationStatus =
+            formData.verification_status ||
+            verificationStatusMapping[formData.status] ||
+            'pending'
+        const priorityLevel =
+            formData.priority_level ||
+            priorityByDamageSeverity[damageSeverity] ||
+            'medium'
+        const damageDescription = formData.damage_description || formData.description || 'No description provided'
+        const locationDescription =
+            formData.location_description ||
+            [formData.barangay, municipality, formData.province, formData.region].filter(Boolean).join(', ') ||
+            'Location details provided in report'
+
         return {
             // Reporter information
             reporter_name: formData.reporter_name || '',
-            reporter_role: formData.reporter_role || 'citizen',
-            contact_number: formData.contact_number || '',
+            reporter_type: reporterType,
+            reporter_contact: reporterContact,
             
             // Incident details
-            disaster_type: formData.disaster_type || '',
-            incident_date: formData.incident_date || new Date().toISOString().split('T')[0],
-            severity: formData.severity || 'medium',
-            status: statusMapping[formData.status] || formData.status || 'new',
-            description: formData.description || 'No description provided',
+            damage_type: damageType,
+            incident_date: incidentDate,
+            damage_severity: damageSeverity,
+            verification_status: verificationStatus,
+            priority_level: priorityLevel,
             
             // Location (map to table fields)
             region: regionMapping[formData.region] || formData.region || '',
             province: formData.province || '',
-            municipality: formData.city || '',
-            city_municipality: formData.city || '',
+            municipality,
+            barangay: formData.barangay || '',
+            latitude: formData.latitude === null || formData.latitude === undefined || formData.latitude === '' ? '' : String(formData.latitude),
+            longitude: formData.longitude === null || formData.longitude === undefined || formData.longitude === '' ? '' : String(formData.longitude),
             
             // Required fields with defaults
-            damage_description: formData.description || 'Damage assessment pending',
-            location_description: `${formData.city || ''}, ${formData.province || ''}, ${formData.region || ''}`.replace(/^,\s*|,\s*$/g, ''),
-            damage_severity: 'moderate', // Default severity
+            damage_description: damageDescription,
+            location_description: locationDescription,
+            immediate_needs: formData.immediate_needs || '',
+            has_multimedia: formData.has_multimedia ? 'true' : 'false',
             
             // Impact data
-            people_affected: parseInt(formData.people_affected) || 0,
-            houses_damaged: parseInt(formData.houses_damaged) || 0,
-            
-            // Set default values for verification workflow
-            verification_status: 'pending',
-            response_status: 'no_response',
-            has_multimedia: false
+            affected_individuals: parseInt(formData.affected_individuals ?? formData.people_affected) || 0,
+            affected_households: parseInt(formData.affected_households ?? formData.houses_damaged) || 0,
         }
     }
 
@@ -73,7 +126,7 @@ export class DisasterReportService {
         try {
             const searchParams = new URLSearchParams()
             searchParams.set('sysparm_display_value', 'all')
-            searchParams.set('sysparm_fields', 'sys_id,number,reporter_name,reporter_role,disaster_type,severity,status,region,province,municipality,city_municipality,people_affected,houses_damaged,incident_date,description,contact_number')
+            searchParams.set('sysparm_fields', 'sys_id,number,reporter_name,reporter_type,reporter_contact,region,province,municipality,barangay,latitude,longitude,location_description,incident_date,damage_type,damage_severity,damage_description,immediate_needs,has_multimedia,affected_individuals,affected_households,priority_level,verification_status,sys_created_on')
             searchParams.set('sysparm_query', 'ORDERBYDESCincident_date')
 
             console.log('Fetching disaster reports from:', `/api/now/table/${this.tableName}`)
@@ -93,8 +146,33 @@ export class DisasterReportService {
             }
 
             const { result } = await response.json()
-            console.log('Disaster reports loaded:', result?.length || 0)
-            return result || []
+            const normalized = (result || []).map((report) => {
+                const normalizedReport = { ...report }
+
+                // Canonical table columns
+                normalizedReport.reporter_type = report.reporter_type
+                normalizedReport.reporter_contact = report.reporter_contact
+                normalizedReport.damage_type = report.damage_type
+                normalizedReport.affected_individuals = report.affected_individuals
+                normalizedReport.affected_households = report.affected_households
+
+                // Backward-compatible aliases for existing UI components
+                normalizedReport.reporter_role = report.reporter_type
+                normalizedReport.contact_number = report.reporter_contact
+                normalizedReport.disaster_type = report.damage_type
+                normalizedReport.people_affected = report.affected_individuals
+                normalizedReport.houses_damaged = report.affected_households
+                normalizedReport.city_municipality = report.municipality
+                normalizedReport.description = report.damage_description
+                normalizedReport.status = report.verification_status
+                normalizedReport.severity = report.damage_severity
+                normalizedReport.reported_at = report.sys_created_on || report.incident_date
+
+                return normalizedReport
+            })
+
+            console.log('Disaster reports loaded:', normalized.length)
+            return normalized
         } catch (error) {
             console.error('Error fetching disaster reports:', error)
             throw error
