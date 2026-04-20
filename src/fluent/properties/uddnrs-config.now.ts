@@ -5,7 +5,7 @@ import { uddnrs_admin_role, lgu_officer_role } from '../roles/uddnrs-roles.now.t
 // Configuration properties for UDDNRS system
 export const enable_geo_validation = Property({
     $id: Now.ID['geo_validation_prop'],
-    name: 'x_2002275_unified.enable_geo_validation',
+    name: 'x_2002275_unifie_0.enable_geo_validation',
     type: 'boolean',
     value: true,
     description: 'Enable validation of GPS coordinates within Philippines boundaries',
@@ -17,7 +17,7 @@ export const enable_geo_validation = Property({
 
 export const default_region = Property({
     $id: Now.ID['default_region_prop'],
-    name: 'x_2002275_unified.default_region',
+    name: 'x_2002275_unifie_0.default_region',
     type: 'string',
     value: 'Region IV-A (CALABARZON)',
     description: 'Default region for new disaster reports',
@@ -29,7 +29,7 @@ export const default_region = Property({
 
 export const auto_priority_assignment = Property({
     $id: Now.ID['auto_priority_prop'],
-    name: 'x_2002275_unified.auto_priority_assignment',
+    name: 'x_2002275_unifie_0.auto_priority_assignment',
     type: 'boolean',
     value: true,
     description: 'Automatically assign priority levels based on damage severity and type',
@@ -41,7 +41,7 @@ export const auto_priority_assignment = Property({
 
 export const notification_enabled = Property({
     $id: Now.ID['notification_enabled_prop'],
-    name: 'x_2002275_unified.notification_enabled',
+    name: 'x_2002275_unifie_0.notification_enabled',
     type: 'boolean',
     value: true,
     description: 'Enable notifications for critical disaster reports',
@@ -53,7 +53,7 @@ export const notification_enabled = Property({
 
 export const max_reports_per_user_per_day = Property({
     $id: Now.ID['max_reports_prop'],
-    name: 'x_2002275_unified.max_reports_per_user_per_day',
+    name: 'x_2002275_unifie_0.max_reports_per_user_per_day',
     type: 'integer',
     value: 10,
     description: 'Maximum number of reports a user can submit per day (0 for unlimited)',
@@ -65,7 +65,7 @@ export const max_reports_per_user_per_day = Property({
 
 export const verification_auto_assign = Property({
     $id: Now.ID['verification_auto_assign_prop'],
-    name: 'x_2002275_unified.verification_auto_assign',
+    name: 'x_2002275_unifie_0.verification_auto_assign',
     type: 'boolean',
     value: false,
     description: 'Automatically assign reports to LGU officers based on location',
@@ -77,7 +77,7 @@ export const verification_auto_assign = Property({
 
 export const multimedia_max_size_mb = Property({
     $id: Now.ID['multimedia_max_size_prop'],
-    name: 'x_2002275_unified.multimedia_max_size_mb',
+    name: 'x_2002275_unifie_0.multimedia_max_size_mb',
     type: 'integer',
     value: 10,
     description: 'Maximum file size for multimedia attachments in MB',
@@ -89,7 +89,7 @@ export const multimedia_max_size_mb = Property({
 
 export const api_rate_limit = Property({
     $id: Now.ID['api_rate_limit_prop'],
-    name: 'x_2002275_unified.api_rate_limit',
+    name: 'x_2002275_unifie_0.api_rate_limit',
     type: 'integer',
     value: 100,
     description: 'API rate limit per hour per user (0 for unlimited)',

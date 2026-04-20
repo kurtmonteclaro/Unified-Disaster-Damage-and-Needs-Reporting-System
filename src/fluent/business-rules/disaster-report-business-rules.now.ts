@@ -6,7 +6,7 @@ import { sendHighPriorityNotification } from '../../server/verification-workflow
 BusinessRule({
     $id: Now.ID['br_notify_high_priority'],
     name: 'Notify High Priority Reports',
-    table: 'x_2002275_unified_disaster_report',
+    table: 'x_2002275_unifie_0_disaster_report',
     action: ['insert', 'update'],
     when: 'after',
     active: true,

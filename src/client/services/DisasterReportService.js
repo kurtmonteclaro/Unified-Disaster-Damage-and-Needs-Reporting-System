@@ -1,6 +1,6 @@
 export class DisasterReportService {
     constructor() {
-        this.tableName = 'x_2002275_unified_disaster_report'
+        this.tableName = 'x_2002275_unifie_0_disaster_report'
     }
 
     static formatLocation(report) {
