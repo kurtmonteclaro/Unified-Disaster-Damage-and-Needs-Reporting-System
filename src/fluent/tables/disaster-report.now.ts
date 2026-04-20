@@ -8,8 +8,8 @@ import {
 } from '@servicenow/sdk/core'
 
 // Create the main disaster damage and needs reporting table
-export const x_2002275_unified_disaster_report = Table({
-    name: 'x_2002275_unified_disaster_report',
+export const x_2002275_unifie_0_disaster_report = Table({
+    name: 'x_2002275_unifie_0_disaster_report',
     label: 'Disaster Report',
     schema: {
         // Report identification and tracking - auto-generated
