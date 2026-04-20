@@ -118,6 +118,7 @@ export class DisasterReportService {
             // Impact data
             affected_individuals: parseInt(formData.affected_individuals ?? formData.people_affected) || 0,
             affected_households: parseInt(formData.affected_households ?? formData.houses_damaged) || 0,
+            estimated_damage_cost: String(parseFloat(formData.estimated_damage_cost ?? 0) || 0),
         }
     }
 
@@ -126,7 +127,7 @@ export class DisasterReportService {
         try {
             const searchParams = new URLSearchParams()
             searchParams.set('sysparm_display_value', 'all')
-            searchParams.set('sysparm_fields', 'sys_id,number,reporter_name,reporter_type,reporter_contact,region,province,municipality,barangay,latitude,longitude,location_description,incident_date,damage_type,damage_severity,damage_description,immediate_needs,has_multimedia,affected_individuals,affected_households,priority_level,verification_status,sys_created_on')
+            searchParams.set('sysparm_fields', 'sys_id,number,reporter_name,reporter_type,reporter_contact,region,province,municipality,barangay,latitude,longitude,location_description,incident_date,damage_type,damage_severity,damage_description,immediate_needs,has_multimedia,affected_individuals,affected_households,estimated_damage_cost,priority_level,verification_status,sys_created_on')
             searchParams.set('sysparm_query', 'ORDERBYDESCincident_date')
 
             console.log('Fetching disaster reports from:', `/api/now/table/${this.tableName}`)
@@ -162,6 +163,7 @@ export class DisasterReportService {
                 normalizedReport.disaster_type = report.damage_type
                 normalizedReport.people_affected = report.affected_individuals
                 normalizedReport.houses_damaged = report.affected_households
+                normalizedReport.estimated_damage_cost = report.estimated_damage_cost
                 normalizedReport.city_municipality = report.municipality
                 normalizedReport.description = report.damage_description
                 normalizedReport.status = report.verification_status

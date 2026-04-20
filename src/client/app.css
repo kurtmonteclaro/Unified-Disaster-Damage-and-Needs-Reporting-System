@@ -1,17 +1,19 @@
-/* Modern Dark Theme CSS for UDDNRS */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap');
+
+/* Modern Civic Theme CSS for UDDNRS */
 :root {
-  --primary-bg: #0f172a;
-  --secondary-bg: #1e293b;
-  --accent-blue: #3b82f6;
-  --accent-blue-hover: #2563eb;
-  --success-green: #10b981;
-  --warning-yellow: #f59e0b;
-  --danger-red: #ef4444;
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #64748b;
-  --border-color: #334155;
-  --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --primary-bg: #f4f8fb;
+  --secondary-bg: #ffffff;
+  --accent-blue: #0f766e;
+  --accent-blue-hover: #115e59;
+  --success-green: #15803d;
+  --warning-yellow: #b45309;
+  --danger-red: #be123c;
+  --text-primary: #102a43;
+  --text-secondary: #334e68;
+  --text-muted: #627d98;
+  --border-color: #d9e2ec;
+  --card-shadow: 0 20px 45px -28px rgba(16, 42, 67, 0.45);
   --border-radius: 12px;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -23,8 +25,11 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background: var(--primary-bg);
+  font-family: 'Manrope', 'Segoe UI', sans-serif;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(15, 118, 110, 0.17) 0%, rgba(15, 118, 110, 0) 34%),
+    radial-gradient(circle at 90% 10%, rgba(14, 165, 233, 0.14) 0%, rgba(14, 165, 233, 0) 40%),
+    linear-gradient(180deg, #f7fbff 0%, #edf4f8 100%);
   color: var(--text-primary);
   line-height: 1.6;
   min-height: 100vh;
@@ -39,7 +44,8 @@ body {
 
 /* Navigation Bar */
 .navbar {
-  background: var(--secondary-bg);
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(8px);
   padding: 1rem 2rem;
   border-bottom: 1px solid var(--border-color);
   box-shadow: var(--card-shadow);
@@ -60,7 +66,8 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-size: 1.5rem;
+  font-family: 'Sora', 'Manrope', sans-serif;
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--text-primary);
   text-decoration: none;
@@ -69,7 +76,7 @@ body {
 .logo-icon {
   width: 2rem;
   height: 2rem;
-  background: var(--accent-blue);
+  background: linear-gradient(145deg, #0f766e 0%, #0ea5e9 100%);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -87,7 +94,7 @@ body {
 .nav-link {
   color: var(--text-secondary);
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
   transition: var(--transition);
   padding: 0.5rem 1rem;
   border-radius: 8px;
@@ -97,7 +104,7 @@ body {
 .nav-link:hover,
 .nav-link.active {
   color: var(--accent-blue);
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(15, 118, 110, 0.12);
 }
 
 /* Main Content Area */
@@ -107,6 +114,12 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+}
+
+.home-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
 }
 
 /* Cards */
@@ -119,8 +132,8 @@ body {
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 26px 42px -26px rgba(16, 42, 67, 0.56);
 }
 
 .card-header {
@@ -130,14 +143,14 @@ body {
 
 .card-title {
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
 .card-description {
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: 0.9rem;
 }
 
 .card-content {
@@ -152,22 +165,22 @@ body {
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   border-radius: var(--border-radius);
-  font-weight: 500;
+  font-weight: 600;
   text-decoration: none;
   border: none;
   cursor: pointer;
   transition: var(--transition);
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   min-height: 44px;
 }
 
 .btn-primary {
-  background: var(--accent-blue);
+  background: linear-gradient(135deg, #0f766e 0%, #0ea5e9 100%);
   color: white;
 }
 
 .btn-primary:hover {
-  background: var(--accent-blue-hover);
+  background: linear-gradient(135deg, #115e59 0%, #0284c7 100%);
   transform: translateY(-1px);
 }
 
@@ -178,7 +191,7 @@ body {
 }
 
 .btn-secondary:hover {
-  background: var(--border-color);
+  background: #f1f5f9;
   transform: translateY(-1px);
 }
 
@@ -188,7 +201,7 @@ body {
 }
 
 .btn-success:hover {
-  background: #059669;
+  background: #166534;
   transform: translateY(-1px);
 }
 
@@ -219,15 +232,26 @@ body {
 /* Hero Section */
 .hero {
   text-align: center;
-  padding: 4rem 0;
-  background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+  padding: 4.5rem 2rem;
+  border-radius: 22px;
+  border: 1px solid var(--border-color);
+  background:
+    radial-gradient(circle at 50% 15%, rgba(15, 118, 110, 0.2) 0%, rgba(15, 118, 110, 0) 40%),
+    linear-gradient(145deg, #ffffff 0%, #edf8fb 100%);
+  box-shadow: 0 30px 48px -30px rgba(2, 132, 199, 0.55);
+}
+
+.hero-content {
+  max-width: 860px;
+  margin: 0 auto;
 }
 
 .hero-title {
-  font-size: 3rem;
+  font-family: 'Sora', 'Manrope', sans-serif;
+  font-size: 3.2rem;
   font-weight: 800;
   margin-bottom: 1rem;
-  background: linear-gradient(135deg, var(--text-primary), var(--accent-blue));
+  background: linear-gradient(135deg, #102a43 10%, #0f766e 58%, #0369a1 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -236,7 +260,7 @@ body {
 
 .hero-subtitle {
   font-size: 1.25rem;
-  color: var(--text-secondary);
+  color: #334e68;
   margin-bottom: 2rem;
   max-width: 600px;
   margin-left: auto;
@@ -250,16 +274,23 @@ body {
   flex-wrap: wrap;
 }
 
+.features-section,
+.stats-section,
+.cta-section {
+  margin-top: 0.5rem;
+}
+
 /* Feature Cards */
 .feature-card {
   text-align: center;
-  padding: 2rem;
+  padding: 2rem 1.5rem;
+  height: 100%;
 }
 
 .feature-icon {
   width: 4rem;
   height: 4rem;
-  background: linear-gradient(135deg, var(--accent-blue), #6366f1);
+  background: linear-gradient(145deg, #0f766e 0%, #0284c7 100%);
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -270,23 +301,24 @@ body {
 }
 
 .feature-title {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 700;
   margin-bottom: 0.75rem;
   color: var(--text-primary);
 }
 
 .feature-description {
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: 0.9rem;
 }
 
 /* How It Works Section */
 .how-it-works {
-  margin: 4rem 0;
+  margin: 1rem 0;
 }
 
 .section-title {
+  font-family: 'Sora', 'Manrope', sans-serif;
   font-size: 2rem;
   font-weight: 700;
   text-align: center;
@@ -297,24 +329,28 @@ body {
 .steps {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
+  gap: 1.1rem;
   position: relative;
 }
 
 .step {
-  text-align: center;
+  text-align: left;
   position: relative;
+  padding: 1.35rem;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
 }
 
 .step-number {
   width: 3rem;
   height: 3rem;
-  background: var(--accent-blue);
-  border-radius: 50%;
+  background: linear-gradient(145deg, #0f766e 0%, #0ea5e9 100%);
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 1rem;
+  margin: 0 0 1rem;
   font-weight: 700;
   color: white;
   font-size: 1.25rem;
@@ -322,14 +358,14 @@ body {
 
 .step-title {
   font-size: 1.125rem;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 0.5rem;
   color: var(--text-primary);
 }
 
 .step-description {
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: 0.9rem;
 }
 
 /* Forms */
@@ -339,10 +375,10 @@ body {
 
 .form-label {
   display: block;
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 0.5rem;
   color: var(--text-primary);
-  font-size: 0.875rem;
+  font-size: 0.9rem;
 }
 
 .form-input,
@@ -352,7 +388,7 @@ body {
   padding: 0.75rem;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: var(--primary-bg);
+  background: #f8fbfd;
   color: var(--text-primary);
   font-size: 0.875rem;
   transition: var(--transition);
@@ -363,7 +399,7 @@ body {
 .form-textarea:focus {
   outline: none;
   border-color: var(--accent-blue);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
 }
 
 .form-textarea {
@@ -398,8 +434,8 @@ body {
 }
 
 .table th {
-  background: var(--primary-bg);
-  font-weight: 600;
+  background: #eef4f8;
+  font-weight: 700;
   color: var(--text-primary);
   font-size: 0.875rem;
 }
@@ -410,7 +446,7 @@ body {
 }
 
 .table tr:hover {
-  background: rgba(59, 130, 246, 0.05);
+  background: rgba(15, 118, 110, 0.06);
 }
 
 /* Status Badges */
@@ -420,7 +456,7 @@ body {
   padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .badge-success {
@@ -442,9 +478,9 @@ body {
 }
 
 .badge-primary {
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(15, 118, 110, 0.1);
   color: var(--accent-blue);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(15, 118, 110, 0.2);
 }
 
 /* Filters */
@@ -520,7 +556,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(16, 42, 67, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -578,43 +614,55 @@ body {
   .navbar {
     padding: 1rem;
   }
-  
+
   .nav-links {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .main-content {
     padding: 1rem;
   }
-  
-  .hero-title {
-    font-size: 2rem;
+
+  .hero {
+    padding: 3rem 1.25rem;
   }
-  
+
+  .hero-title {
+    font-size: 2.1rem;
+  }
+
   .hero-subtitle {
     font-size: 1rem;
   }
-  
+
   .hero-actions {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .filters {
     flex-direction: column;
   }
-  
+
   .table-container {
     overflow-x: auto;
   }
-  
+
   .modal-content {
     margin: 1rem;
+  }
+
+  .step {
+    text-align: center;
+  }
+
+  .step-number {
+    margin: 0 auto 0.8rem;
   }
 }
 
@@ -652,7 +700,7 @@ body {
 /* Chart Placeholder Styles */
 .chart-placeholder {
   height: 300px;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+  background: linear-gradient(135deg, rgba(15, 118, 110, 0.09) 0%, rgba(14, 165, 233, 0.12) 100%);
   border-radius: var(--border-radius);
   display: flex;
   align-items: center;
