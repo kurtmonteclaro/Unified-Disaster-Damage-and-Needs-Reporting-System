@@ -32,7 +32,7 @@ export default function DisasterReportList({
         showPagination: true,
         itemsPerPage: 10,
         allowEdit: false,
-        allowVerify: userRole === 'lgu_officer' || userRole === 'admin',
+        allowVerify: userRole === 'lgu_officer' || userRole === 'app_admin' || userRole === 'admin',
         showLocationDetails: true,
         showStatusBadges: true,
         ...config
@@ -53,11 +53,11 @@ export default function DisasterReportList({
     const filteredReports = reports.filter(report => {
         const matchesStatus = !filters.status || report.verification_status === filters.status
         const matchesPriority = !filters.priority || report.priority_level === filters.priority
-        const matchesDamageType = !filters.damageType || report.damage_type === filters.damageType
+        const matchesDamageType = !filters.damageType || report.disaster_type === filters.damageType
         const matchesSearch = !filters.search || 
-            report.reporter_name.toLowerCase().includes(filters.search.toLowerCase()) ||
-            report.location_description.toLowerCase().includes(filters.search.toLowerCase()) ||
-            report.damage_description.toLowerCase().includes(filters.search.toLowerCase())
+            (report.reporter_name || '').toLowerCase().includes(filters.search.toLowerCase()) ||
+            (report.location_description || '').toLowerCase().includes(filters.search.toLowerCase()) ||
+            (report.damage_description || '').toLowerCase().includes(filters.search.toLowerCase())
         
         return matchesStatus && matchesPriority && matchesDamageType && matchesSearch
     }).sort((a, b) => {
@@ -190,13 +190,16 @@ export default function DisasterReportList({
                                 className="filter-select"
                             >
                                 <option value="">All Damage Types</option>
-                                <option value="structural">Structural</option>
-                                <option value="infrastructure">Infrastructure</option>
-                                <option value="agricultural">Agricultural</option>
-                                <option value="environmental">Environmental</option>
-                                <option value="livelihood">Livelihood</option>
-                                <option value="casualties">Casualties</option>
-                                <option value="displacement">Displacement</option>
+                                <option value="flood">Flood</option>
+                                <option value="fire">Fire</option>
+                                <option value="earthquake">Earthquake</option>
+                                <option value="landslide">Landslide</option>
+                                <option value="typhoon">Typhoon</option>
+                                <option value="volcanic_eruption">Volcanic Eruption</option>
+                                <option value="storm_surge">Storm Surge</option>
+                                <option value="tornado">Tornado</option>
+                                <option value="drought">Drought</option>
+                                <option value="other">Other</option>
                             </select>
                         </div>
                         
@@ -249,16 +252,16 @@ export default function DisasterReportList({
 
                                 <div className="report-content">
                                     <div className="report-title">
-                                        <strong>{report.damage_type?.replace('_', ' ').toUpperCase()}</strong>
+                                        <strong>{report.disaster_type?.replace('_', ' ').toUpperCase()}</strong>
                                         <span className="severity-indicator">
                                             {report.damage_severity} severity
                                         </span>
                                     </div>
 
                                     <div className="report-description">
-                                        {report.damage_description.length > 120 
-                                            ? report.damage_description.substring(0, 120) + '...'
-                                            : report.damage_description
+                                        {(report.damage_description || '').length > 120 
+                                            ? (report.damage_description || '').substring(0, 120) + '...'
+                                            : (report.damage_description || '-')
                                         }
                                     </div>
 
@@ -272,18 +275,18 @@ export default function DisasterReportList({
                                     <div className="report-meta">
                                         <div className="reporter-info">
                                             <strong>Reporter:</strong> {report.reporter_name}
-                                            <span className="reporter-type">({report.reporter_type?.replace('_', ' ')})</span>
+                                            <span className="reporter-type">({report.reporter_role?.replace('_', ' ')})</span>
                                         </div>
                                         
                                         <div className="report-date">
                                             <strong>Reported:</strong> {formatDate(report.reported_at)}
                                         </div>
 
-                                        {(report.affected_households > 0 || report.affected_individuals > 0) && (
+                                        {(report.houses_damaged > 0 || report.people_affected > 0) && (
                                             <div className="affected-info">
                                                 <strong>Affected:</strong>
-                                                {report.affected_households > 0 && ` ${report.affected_households} households`}
-                                                {report.affected_individuals > 0 && ` ${report.affected_individuals} individuals`}
+                                                {report.houses_damaged > 0 && ` ${report.houses_damaged} households`}
+                                                {report.people_affected > 0 && ` ${report.people_affected} individuals`}
                                             </div>
                                         )}
                                     </div>

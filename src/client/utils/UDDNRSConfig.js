@@ -85,7 +85,7 @@ export class UDDNRSConfig {
         
         // API Settings
         api: {
-            baseUrl: '/api/x_2002275_unified/disaster_reports/v1',
+            baseUrl: '/api/now/table/x_2002275_unified_disaster_report',
             rateLimit: 100, // requests per hour
             timeout: 30000 // milliseconds
         },
