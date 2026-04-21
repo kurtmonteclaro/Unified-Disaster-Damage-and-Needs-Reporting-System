@@ -5,6 +5,28 @@
  */
 
 export class UDDNRSConfig {
+    static roleAliases = {
+        citizen: 'citizen',
+        lgu_officer: 'lguOfficer',
+        lguofficer: 'lguOfficer',
+        lguOfficer: 'lguOfficer',
+        national_agency: 'nationalAgency',
+        nationalagency: 'nationalAgency',
+        nationalAgency: 'nationalAgency',
+        app_admin: 'admin',
+        appadmin: 'admin',
+        admin: 'admin'
+    }
+
+    static normalizeRole(userRole) {
+        if (!userRole) {
+            return 'citizen'
+        }
+
+        const normalizedRole = String(userRole).trim()
+        return this.roleAliases[normalizedRole] || this.roleAliases[normalizedRole.toLowerCase()] || normalizedRole
+    }
+
     static defaultConfig = {
         // System Settings
         systemName: 'UDDNRS - Unified Disaster Damage and Needs Reporting System',
@@ -232,7 +254,8 @@ export class UDDNRSConfig {
      * Get user permissions based on role
      */
     static getUserPermissions(userRole) {
-        return this.defaultConfig.roles[userRole] || this.defaultConfig.roles.citizen
+        const normalizedRole = this.normalizeRole(userRole)
+        return this.defaultConfig.roles[normalizedRole] || this.defaultConfig.roles.citizen
     }
 
     /**

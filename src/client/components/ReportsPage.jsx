@@ -416,13 +416,13 @@ export default function ReportsPage({ userRole = ROLES.CITIZEN }) {
                                                             className="btn btn-success btn-sm"
                                                             onClick={() => handleVerificationAction(report, 'verified')}
                                                         >
-                                                            Approve
+                                                            Verified
                                                         </button>
                                                         <button
                                                             className="btn btn-danger btn-sm"
                                                             onClick={() => handleVerificationAction(report, 'rejected')}
                                                         >
-                                                            Reject
+                                                            Rejected
                                                         </button>
                                                     </div>
                                                 ) : (
