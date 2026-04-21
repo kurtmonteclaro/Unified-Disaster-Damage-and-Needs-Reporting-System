@@ -49,13 +49,15 @@ export default function ReportsPage({ userRole = ROLES.CITIZEN }) {
             const shouldRestrictToOwnReports = userRole === ROLES.CITIZEN
 
             if (shouldRestrictToOwnReports && !currentUserName) {
-                setReports([])
-                setError('Unable to identify your account in this session. Please refresh and try again.')
-                return
+                console.warn('Session username unavailable. Falling back to unfiltered reports list.')
             }
 
+            const createdByFilter = shouldRestrictToOwnReports && currentUserName
+                ? currentUserName
+                : ''
+
             const data = await service.list({
-                createdBy: shouldRestrictToOwnReports ? currentUserName : '',
+                createdBy: createdByFilter,
             })
             setReports(data)
         } catch (err) {
