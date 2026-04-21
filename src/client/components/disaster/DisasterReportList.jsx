@@ -232,7 +232,9 @@ export default function DisasterReportList({
                             <div key={report.sys_id} className="report-card">
                                 <div className="report-header">
                                     <div className="report-number">
-                                        {report.number}
+                                        {typeof report.number === 'object'
+                                            ? report.number.display_value || report.number.value || report.sys_id
+                                            : report.number || report.sys_id}
                                     </div>
                                     <div className="report-badges">
                                         {defaultConfig.showStatusBadges && (

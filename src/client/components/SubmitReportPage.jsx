@@ -8,7 +8,7 @@ export default function SubmitReportPage({ onSuccess }) {
         contact_number: '',
         disaster_type: '',
         incident_date: '',
-        severity: 'medium',
+        damage_severity: 'moderate',
         status: 'reported',
         region: '',
         province: '',
@@ -18,6 +18,7 @@ export default function SubmitReportPage({ onSuccess }) {
         description: '',
         estimated_damage_cost: 0
     })
+    const [selectedFiles, setSelectedFiles] = useState([])
     const [loading, setLoading] = useState(false)
     const [errors, setErrors] = useState({})
 
@@ -46,6 +47,18 @@ export default function SubmitReportPage({ onSuccess }) {
             setErrors(prev => ({
                 ...prev,
                 [name]: ''
+            }))
+        }
+    }
+
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files || [])
+        setSelectedFiles(files)
+
+        if (errors.multimedia) {
+            setErrors(prev => ({
+                ...prev,
+                multimedia: ''
             }))
         }
     }
@@ -95,7 +108,7 @@ export default function SubmitReportPage({ onSuccess }) {
         setLoading(true)
         
         try {
-            await service.create(formData)
+            await service.create(formData, selectedFiles)
             
             // Reset form
             setFormData({
@@ -104,7 +117,7 @@ export default function SubmitReportPage({ onSuccess }) {
                 contact_number: '',
                 disaster_type: '',
                 incident_date: '',
-                severity: 'medium',
+                damage_severity: 'moderate',
                 status: 'reported',
                 region: '',
                 province: '',
@@ -114,6 +127,7 @@ export default function SubmitReportPage({ onSuccess }) {
                 description: '',
                 estimated_damage_cost: 0
             })
+            setSelectedFiles([])
             
             onSuccess('Disaster report submitted successfully! Report will be reviewed by local authorities.')
             
@@ -265,19 +279,20 @@ export default function SubmitReportPage({ onSuccess }) {
                             
                             <div className="form-row">
                                 <div className="form-group">
-                                    <label className="form-label" htmlFor="severity">
+                                    <label className="form-label" htmlFor="damage_severity">
                                         Severity Level
                                     </label>
                                     <select
-                                        id="severity"
-                                        name="severity"
+                                        id="damage_severity"
+                                        name="damage_severity"
                                         className="form-select"
-                                        value={formData.severity}
+                                        value={formData.damage_severity}
                                         onChange={handleInputChange}
                                     >
-                                        <option value="low">Low - Minor damage, no casualties</option>
-                                        <option value="medium">Medium - Moderate damage, few casualties</option>
-                                        <option value="high">High - Severe damage, multiple casualties</option>
+                                        <option value="minimal">Minimal - Limited damage</option>
+                                        <option value="moderate">Moderate - Noticeable damage</option>
+                                        <option value="severe">Severe - Major damage</option>
+                                        <option value="catastrophic">Catastrophic - Extreme damage</option>
                                     </select>
                                 </div>
                                 
@@ -448,6 +463,33 @@ export default function SubmitReportPage({ onSuccess }) {
                                     rows="4"
                                     placeholder="Provide additional details about the incident, damage assessment, immediate needs, etc."
                                 />
+                            </div>
+
+                            <div className="form-group" style={{ marginTop: '1rem' }}>
+                                <label className="form-label" htmlFor="multimedia_files">
+                                    Upload Images / Videos
+                                </label>
+                                <input
+                                    id="multimedia_files"
+                                    type="file"
+                                    className="form-input"
+                                    accept="image/*,video/*"
+                                    multiple
+                                    onChange={handleFileChange}
+                                />
+                                <small style={{ display: 'block', marginTop: '0.5rem', color: 'var(--text-secondary)' }}>
+                                    Optional. You can upload one or more images or videos with the report.
+                                </small>
+                                {selectedFiles.length > 0 && (
+                                    <div style={{ marginTop: '0.75rem', fontSize: '0.9rem' }}>
+                                        <strong>Selected files:</strong>
+                                        <ul style={{ marginTop: '0.35rem' }}>
+                                            {selectedFiles.map(file => (
+                                                <li key={file.name}>{file.name}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
