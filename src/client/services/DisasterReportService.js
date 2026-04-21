@@ -167,7 +167,7 @@ export class DisasterReportService {
                 normalizedReport.city_municipality = report.municipality
                 normalizedReport.description = report.damage_description
                 normalizedReport.status = report.verification_status
-                normalizedReport.severity = report.damage_severity
+                normalizedReport.severity = report.priority_level
                 normalizedReport.reported_at = report.sys_created_on || report.incident_date
 
                 return normalizedReport
