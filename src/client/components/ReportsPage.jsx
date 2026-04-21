@@ -19,7 +19,7 @@ export default function ReportsPage({ userRole = ROLES.CITIZEN }) {
 
     useEffect(() => {
         loadReports()
-    }, [])
+    }, [userRole])
 
     useEffect(() => {
         applyFilters()
@@ -45,7 +45,18 @@ export default function ReportsPage({ userRole = ROLES.CITIZEN }) {
         try {
             setLoading(true)
             setError('')
-            const data = await service.list()
+            const currentUserName = getCurrentSessionUserName()
+            const shouldRestrictToOwnReports = userRole === ROLES.CITIZEN
+
+            if (shouldRestrictToOwnReports && !currentUserName) {
+                setReports([])
+                setError('Unable to identify your account in this session. Please refresh and try again.')
+                return
+            }
+
+            const data = await service.list({
+                createdBy: shouldRestrictToOwnReports ? currentUserName : '',
+            })
             setReports(data)
         } catch (err) {
             console.error('Error loading reports:', err)
@@ -53,6 +64,24 @@ export default function ReportsPage({ userRole = ROLES.CITIZEN }) {
         } finally {
             setLoading(false)
         }
+    }
+
+    const getCurrentSessionUserName = () => {
+        const nowUser = window.NOW?.user || {}
+        const gUser = window.g_user || {}
+
+        const candidates = [
+            nowUser.user_name,
+            nowUser.userName,
+            nowUser.name,
+            typeof gUser.getUserName === 'function' ? gUser.getUserName() : '',
+            gUser.user_name,
+            gUser.userName,
+            gUser.name,
+        ]
+
+        const match = candidates.find((candidate) => typeof candidate === 'string' && candidate.trim())
+        return (match || '').trim()
     }
 
     const applyFilters = () => {

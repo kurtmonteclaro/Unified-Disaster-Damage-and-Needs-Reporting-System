@@ -17,6 +17,34 @@ const ROLE_ALIASES = {
     'x_2002275_unifie_0.app_admin': ROLES.APP_ADMIN,
 }
 
+const SESSION_ROLE_CANDIDATES = {
+    [ROLES.APP_ADMIN]: ['app_admin', 'admin', 'x_2002275_unifie_0.app_admin'],
+    [ROLES.LGU_OFFICER]: ['lgu_officer', 'x_2002275_unifie_0.lgu_officer'],
+    [ROLES.NATIONAL_AGENCY]: ['national_agency', 'x_2002275_unifie_0.national_agency'],
+    [ROLES.CITIZEN]: ['citizen', 'x_2002275_unifie_0.citizen'],
+}
+
+const hasSessionUser = () => Boolean(window.NOW?.user || window.g_user)
+
+const hasRoleFromSessionApis = (roleNames) => {
+    const gUser = window.g_user
+    if (!gUser) {
+        return false
+    }
+
+    for (const roleName of roleNames) {
+        if (typeof gUser.hasRoleExactly === 'function' && gUser.hasRoleExactly(roleName)) {
+            return true
+        }
+
+        if (typeof gUser.hasRole === 'function' && gUser.hasRole(roleName)) {
+            return true
+        }
+    }
+
+    return false
+}
+
 const extractSessionRoles = () => {
     const sessionSources = [
         window.NOW?.user,
@@ -43,12 +71,22 @@ const extractSessionRoles = () => {
 }
 
 const resolveRoleFromSession = () => {
+    for (const [appRole, roleNames] of Object.entries(SESSION_ROLE_CANDIDATES)) {
+        if (hasRoleFromSessionApis(roleNames)) {
+            return appRole
+        }
+    }
+
     const sessionRoles = extractSessionRoles().map((role) => String(role).trim().toLowerCase())
 
     for (const role of sessionRoles) {
         if (ROLE_ALIASES[role]) {
             return ROLE_ALIASES[role]
         }
+    }
+
+    if (hasSessionUser()) {
+        return ROLES.CITIZEN
     }
 
     const localRole = window.localStorage.getItem('uddnrs_role')
@@ -103,7 +141,7 @@ export default function App() {
     const renderPage = () => {
         switch (currentPage) {
             case 'submit':
-                return <SubmitReportPage onSuccess={showSuccessMessage} />
+                return <SubmitReportPage userRole={userRole} onSuccess={showSuccessMessage} />
             case 'reports':
                 return <ReportsPage userRole={userRole} />
             case 'analytics':

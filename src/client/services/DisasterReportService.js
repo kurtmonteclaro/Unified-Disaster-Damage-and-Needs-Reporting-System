@@ -172,12 +172,19 @@ export class DisasterReportService {
     }
 
     // Return all disaster reports
-    async list() {
+    async list(options = {}) {
         try {
+            const { createdBy = '' } = options
             const searchParams = new URLSearchParams()
             searchParams.set('sysparm_display_value', 'all')
-            searchParams.set('sysparm_fields', 'sys_id,number,reporter_name,reporter_type,reporter_contact,region,province,municipality,barangay,latitude,longitude,location_description,incident_date,damage_type,damage_severity,damage_description,immediate_needs,has_multimedia,affected_individuals,affected_households,estimated_damage_cost,priority_level,verification_status,ai_summary,ai_priority_prediction,ai_urgency_level,ai_suggested_damage_type,ai_key_needs,sys_created_on')
-            searchParams.set('sysparm_query', 'ORDERBYDESCincident_date')
+            searchParams.set('sysparm_fields', 'sys_id,number,reporter_name,reporter_type,reporter_contact,region,province,municipality,barangay,latitude,longitude,location_description,incident_date,damage_type,damage_severity,damage_description,immediate_needs,has_multimedia,affected_individuals,affected_households,estimated_damage_cost,priority_level,verification_status,ai_summary,ai_priority_prediction,ai_urgency_level,ai_suggested_damage_type,ai_key_needs,sys_created_by,sys_created_on')
+
+            const queryParts = []
+            if (createdBy) {
+                queryParts.push(`sys_created_by=${createdBy}`)
+            }
+            queryParts.push('ORDERBYDESCincident_date')
+            searchParams.set('sysparm_query', queryParts.join('^'))
 
             console.log('Fetching disaster reports from:', `/api/now/table/${this.tableName}`)
 
@@ -207,6 +214,7 @@ export class DisasterReportService {
                 normalizedReport.affected_households = report.affected_households
                 normalizedReport.number = DisasterReportService.formatReportNumber(report)
                 normalizedReport.sys_id = DisasterReportService.extractPrimitiveValue(report.sys_id)
+                normalizedReport.sys_created_by = report.sys_created_by
 
                 // Backward-compatible aliases for existing UI components
                 normalizedReport.reporter_role = report.reporter_type
@@ -226,6 +234,7 @@ export class DisasterReportService {
                 normalizedReport.ai_suggested_damage_type = report.ai_suggested_damage_type
                 normalizedReport.ai_key_needs = report.ai_key_needs
                 normalizedReport.reported_at = report.sys_created_on || report.incident_date
+                normalizedReport.created_by = report.sys_created_by
 
                 return normalizedReport
             })

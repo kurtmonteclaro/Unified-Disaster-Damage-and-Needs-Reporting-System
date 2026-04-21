@@ -1,10 +1,19 @@
 import React, { useState } from 'react'
 import { DisasterReportService } from '../services/DisasterReportService.js'
+import { ROLES } from '../utils/roleSystem.js'
 
-export default function SubmitReportPage({ onSuccess }) {
+const getReporterRoleFromUserRole = (userRole) => {
+    if (userRole === ROLES.LGU_OFFICER) return 'lgu_officer'
+    if (userRole === ROLES.NATIONAL_AGENCY) return 'national_agency'
+    if (userRole === ROLES.APP_ADMIN) return 'app_admin'
+    return 'citizen'
+}
+
+export default function SubmitReportPage({ userRole = ROLES.CITIZEN, onSuccess }) {
+    const defaultReporterRole = getReporterRoleFromUserRole(userRole)
     const [formData, setFormData] = useState({
         reporter_name: '',
-        reporter_role: 'citizen',
+        reporter_role: defaultReporterRole,
         contact_number: '',
         disaster_type: '',
         incident_date: '',
@@ -124,7 +133,7 @@ export default function SubmitReportPage({ onSuccess }) {
             // Reset form
             setFormData({
                 reporter_name: '',
-                reporter_role: 'citizen',
+                reporter_role: defaultReporterRole,
                 contact_number: '',
                 disaster_type: '',
                 incident_date: '',
@@ -196,23 +205,6 @@ export default function SubmitReportPage({ onSuccess }) {
                                             {errors.reporter_name}
                                         </div>
                                     )}
-                                </div>
-                                
-                                <div className="form-group">
-                                    <label className="form-label" htmlFor="reporter_role">
-                                        Role
-                                    </label>
-                                    <select
-                                        id="reporter_role"
-                                        name="reporter_role"
-                                        className="form-select"
-                                        value={formData.reporter_role}
-                                        onChange={handleInputChange}
-                                    >
-                                        <option value="citizen">Citizen</option>
-                                        <option value="lgu_officer">LGU Officer</option>
-                                        <option value="national_agency">National Agency</option>
-                                    </select>
                                 </div>
                             </div>
                             
