@@ -404,7 +404,7 @@ export default function ReportsPage() {
                         </>
                     ) : (
                         <>
-                            🔄 Refresh Reports
+                            Refresh Reports
                         </>
                     )}
                 </button>

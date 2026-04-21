@@ -1,5 +1,35 @@
 import { gs, GlideDateTime } from '@servicenow/glide'
 
+function buildFallbackNumber(current) {
+    const sysId = (current.getUniqueValue() || '').toString().replace(/[^a-zA-Z0-9]/g, '').toUpperCase()
+    if (!sysId) {
+        return ''
+    }
+
+    return `DR${sysId.slice(-6).padStart(6, '0')}`
+}
+
+export function sanitizeReportNumber(current) {
+    const currentNumber = (current.getValue('number') || '').toString().trim()
+    const isInvalidFunctionValue = currentNumber.indexOf('org.mozilla.javascript.') === 0
+
+    if (!isInvalidFunctionValue) {
+        return
+    }
+
+    // For inserts, clear the value so platform auto-numbering can run.
+    if (current.operation && current.operation() === 'insert') {
+        current.setValue('number', '')
+        return
+    }
+
+    // For existing bad records, assign a deterministic DR fallback.
+    const fallbackNumber = buildFallbackNumber(current)
+    if (fallbackNumber) {
+        current.setValue('number', fallbackNumber)
+    }
+}
+
 export function generateReportNumber(current) {
     // Generate unique report number using GlideDateTime (scoped app compatible)
     const now = new GlideDateTime()
