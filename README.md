@@ -204,7 +204,7 @@ const NGOConfig = UDDNRSConfig.createCustomConfig({
 | `affected_individuals` | Integer | Number of affected individuals |
 | `immediate_needs` | Text | Description of immediate needs |
 | `verification_status` | Choice | pending, verified, rejected, resolved |
-| `priority_level` | Choice | low, medium, high, critical (for response prioritization) |
+| `priority_level` | Choice | low, medium, high, critical (response prioritization, derived from severity) |
 | `has_multimedia` | Boolean | Whether attachments are present |
 
 ### **Field Mapping for UI Components**
@@ -213,13 +213,17 @@ The frontend normalizes database fields for consistent UI interaction:
 
 ```javascript
 // Service layer mapping (DisasterReportService.js)
-normalizedReport.severity = report.priority_level        // UI severity filter uses priority_level
+normalizedReport.severity = report.damage_severity      // UI severity filter uses damage_severity
 normalizedReport.status = report.verification_status     // UI status filter uses verification_status
 ```
 
 **Important**: Frontend filters (`ReportsPage`, `DisasterReportList`) use these normalized fields:
-- **Severity filtering**: Maps to `priority_level` (low, medium, high, critical)
+- **Severity filtering**: Maps to `damage_severity` (minimal, moderate, severe, catastrophic)
 - **Status filtering**: Maps to `verification_status` (pending, verified, rejected, resolved)
+
+### **Submission Attachments**
+
+The submit report flow now accepts image and video uploads and sends them as attachments alongside the created report record.
 
 This ensures consistency between what users see in the UI and the actual database values.
 
@@ -271,10 +275,10 @@ Fixed critical data consistency issues in the Reports filtering module:
 
 #### **Severity Filter Alignment**
 - **Issue**: UI filter displayed "Low, Medium, High" but database held different values
-- **Fix**: Mapped severity filter to `priority_level` field instead of `damage_severity`
-  - Filter now correctly uses: `low`, `medium`, `high`, `critical`
-  - Database field `damage_severity` remains for damage assessment (minimal, moderate, severe, catastrophic)
-  - See [DisasterReportService.js](src/client/services/DisasterReportService.js) line ~181
+- **Fix**: Mapped severity filter back to `damage_severity`
+    - Filter now correctly uses: `minimal`, `moderate`, `severe`, `catastrophic`
+    - `priority_level` stays reserved for response prioritization
+    - See [DisasterReportService.js](src/client/services/DisasterReportService.js) line ~181
 
 #### **Status Filter Alignment**
 - **Issue**: UI filter showed "New, In Progress, Resolved, Closed" but database used different values

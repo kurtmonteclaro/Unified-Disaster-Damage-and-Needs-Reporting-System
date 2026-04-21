@@ -92,18 +92,18 @@ export default function ReportsPage() {
         const sev = typeof severity === 'object' ? severity.display_value : severity
         
         switch (sev) {
-            case 'low':
-            case 'Low':
-                return <span className="badge badge-success">Low</span>
-            case 'medium':
-            case 'Medium':
-                return <span className="badge badge-warning">Medium</span>
-            case 'high':
-            case 'High':
-                return <span className="badge badge-danger">High</span>
-            case 'critical':
-            case 'Critical':
-                return <span className="badge" style={{ backgroundColor: '#8B0000', color: 'white' }}>Critical</span>
+            case 'minimal':
+            case 'Minimal':
+                return <span className="badge badge-success">Minimal</span>
+            case 'moderate':
+            case 'Moderate':
+                return <span className="badge badge-warning">Moderate</span>
+            case 'severe':
+            case 'Severe':
+                return <span className="badge badge-danger">Severe</span>
+            case 'catastrophic':
+            case 'Catastrophic':
+                return <span className="badge" style={{ backgroundColor: '#8B0000', color: 'white' }}>Catastrophic</span>
             default:
                 return <span className="badge badge-primary">{sev || 'Unknown'}</span>
         }
@@ -193,10 +193,10 @@ export default function ReportsPage() {
                         onChange={handleFilterChange}
                     >
                         <option value="">All Severities</option>
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                        <option value="critical">Critical</option>
+                        <option value="minimal">Minimal</option>
+                        <option value="moderate">Moderate</option>
+                        <option value="severe">Severe</option>
+                        <option value="catastrophic">Catastrophic</option>
                     </select>
                 </div>
 
@@ -255,11 +255,11 @@ export default function ReportsPage() {
                         <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--danger-red)', marginBottom: '0.5rem' }}>
                             {filteredReports.filter(r => {
                                 const sev = typeof r.severity === 'object' ? r.severity.display_value : r.severity
-                                return sev === 'high' || sev === 'High' || sev === 'critical' || sev === 'Critical'
+                                return sev === 'severe' || sev === 'Severe' || sev === 'catastrophic' || sev === 'Catastrophic'
                             }).length}
                         </div>
-                        <h3 className="feature-title">High/Critical Severity</h3>
-                        <p className="feature-description">Critical incidents</p>
+                        <h3 className="feature-title">Severe Severity</h3>
+                        <p className="feature-description">Severe and catastrophic incidents</p>
                     </div>
                 </div>
 
@@ -319,7 +319,7 @@ export default function ReportsPage() {
                         ) : (
                             filteredReports.map((report) => {
                                 const reportNumber = typeof report.number === 'object' 
-                                    ? report.number.display_value 
+                                    ? report.number.display_value || report.number.value
                                     : report.number
 
                                 const disasterType = typeof report.disaster_type === 'object' 
@@ -349,7 +349,7 @@ export default function ReportsPage() {
                                 return (
                                     <tr key={sysId}>
                                         <td style={{ fontWeight: '500', color: 'var(--accent-blue)' }}>
-                                            {reportNumber || 'N/A'}
+                                            {reportNumber || report.sys_id || 'N/A'}
                                         </td>
                                         <td>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

@@ -3,6 +3,23 @@ export class DisasterReportService {
         this.tableName = 'x_2002275_unifie_0_disaster_report'
     }
 
+    static formatReportNumber(report) {
+        const rawNumber = report?.number
+        const displayNumber = typeof rawNumber === 'object'
+            ? rawNumber.display_value || rawNumber.value
+            : rawNumber
+
+        if (displayNumber) {
+            return displayNumber
+        }
+
+        if (report?.sys_id) {
+            return `DR-${String(report.sys_id).slice(-6).toUpperCase()}`
+        }
+
+        return ''
+    }
+
     static formatLocation(report) {
         const parts = [
             report.barangay,
@@ -73,7 +90,7 @@ export class DisasterReportService {
         const reporterContact = formData.reporter_contact || formData.contact_number || ''
         const rawDamageType = formData.damage_type || formData.disaster_type || ''
         const damageType = disasterTypeMapping[rawDamageType] || rawDamageType
-        const damageSeverity = formData.damage_severity || 'moderate'
+        const damageSeverity = formData.damage_severity || formData.severity || 'moderate'
         const verificationStatus =
             formData.verification_status ||
             verificationStatusMapping[formData.status] ||
@@ -156,6 +173,7 @@ export class DisasterReportService {
                 normalizedReport.damage_type = report.damage_type
                 normalizedReport.affected_individuals = report.affected_individuals
                 normalizedReport.affected_households = report.affected_households
+                normalizedReport.number = DisasterReportService.formatReportNumber(report)
 
                 // Backward-compatible aliases for existing UI components
                 normalizedReport.reporter_role = report.reporter_type
@@ -167,7 +185,8 @@ export class DisasterReportService {
                 normalizedReport.city_municipality = report.municipality
                 normalizedReport.description = report.damage_description
                 normalizedReport.status = report.verification_status
-                normalizedReport.severity = report.priority_level
+                normalizedReport.severity = report.damage_severity
+                normalizedReport.priority_level = report.priority_level
                 normalizedReport.reported_at = report.sys_created_on || report.incident_date
 
                 return normalizedReport
@@ -179,6 +198,40 @@ export class DisasterReportService {
             console.error('Error fetching disaster reports:', error)
             throw error
         }
+    }
+
+    async uploadAttachment(recordSysId, file) {
+        const uploadParams = new URLSearchParams()
+        uploadParams.set('table_name', this.tableName)
+        uploadParams.set('table_sys_id', recordSysId)
+        uploadParams.set('file_name', file.name)
+
+        const formData = new FormData()
+        formData.append('file', file)
+
+        const response = await fetch(`/api/now/attachment/file?${uploadParams.toString()}`, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'X-UserToken': window.g_ck,
+            },
+            body: formData,
+        })
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}))
+            throw new Error(errorData.error?.message || `HTTP error ${response.status}`)
+        }
+
+        return response.json()
+    }
+
+    async uploadAttachments(recordSysId, files = []) {
+        if (!recordSysId || !files.length) {
+            return []
+        }
+
+        return Promise.all(files.map((file) => this.uploadAttachment(recordSysId, file)))
     }
 
     // Get a single disaster report by sys_id
@@ -209,7 +262,7 @@ export class DisasterReportService {
     }
 
     // Create a new disaster report
-    async create(data) {
+    async create(data, files = []) {
         try {
             const mappedData = this.mapFormDataToTable(data)
             console.log('Sending data to ServiceNow:', mappedData)
@@ -231,6 +284,12 @@ export class DisasterReportService {
             }
 
             const result = await response.json()
+            const createdRecord = result?.result || result
+
+            if (createdRecord?.sys_id && files.length > 0) {
+                await this.uploadAttachments(createdRecord.sys_id, files)
+            }
+
             console.log('Disaster report created successfully:', result)
             return result
         } catch (error) {
@@ -240,7 +299,7 @@ export class DisasterReportService {
     }
 
     // Update a disaster report
-    async update(sysId, data) {
+    async update(sysId, data, files = []) {
         try {
             const mappedData = this.mapFormDataToTable(data)
 
@@ -259,7 +318,13 @@ export class DisasterReportService {
                 throw new Error(errorData.error?.message || `HTTP error ${response.status}`)
             }
 
-            return response.json()
+            const result = await response.json()
+
+            if (files.length > 0) {
+                await this.uploadAttachments(sysId, files)
+            }
+
+            return result
         } catch (error) {
             console.error(`Error updating disaster report ${sysId}:`, error)
             throw error
