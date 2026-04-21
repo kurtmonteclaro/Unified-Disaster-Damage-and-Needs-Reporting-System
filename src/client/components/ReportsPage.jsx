@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { DisasterReportService } from '../services/DisasterReportService.js'
+import { ROLES } from '../utils/roleSystem.js'
 
-export default function ReportsPage() {
+export default function ReportsPage({ userRole = ROLES.CITIZEN }) {
     const [reports, setReports] = useState([])
     const [filteredReports, setFilteredReports] = useState([])
     const [loading, setLoading] = useState(true)
@@ -14,6 +15,7 @@ export default function ReportsPage() {
     })
 
     const service = new DisasterReportService()
+    const canApproveReports = userRole === ROLES.LGU_OFFICER || userRole === ROLES.APP_ADMIN
 
     useEffect(() => {
         loadReports()
@@ -100,6 +102,16 @@ export default function ReportsPage() {
             status: '',
             disaster_type: ''
         })
+    }
+
+    const handleVerificationAction = async (report, verificationStatus) => {
+        try {
+            await service.setVerificationStatus(report.sys_id, verificationStatus)
+            await loadReports()
+        } catch (err) {
+            console.error('Error updating verification status:', err)
+            setError(`Failed to ${verificationStatus === 'verified' ? 'approve' : 'reject'} report. Please try again.`)
+        }
     }
 
     const getSeverityBadge = (severity) => {
@@ -316,12 +328,13 @@ export default function ReportsPage() {
                             <th>AI Summary</th>
                             <th>People Affected</th>
                             <th>Houses Damaged</th>
+                            {canApproveReports && <th>Actions</th>}
                         </tr>
                     </thead>
                     <tbody>
                         {filteredReports.length === 0 ? (
                             <tr>
-                                <td colSpan="10" className="text-center" style={{ padding: '2rem', color: 'var(--text-secondary)' }}>
+                                <td colSpan={canApproveReports ? 11 : 10} className="text-center" style={{ padding: '2rem', color: 'var(--text-secondary)' }}>
                                     {reports.length === 0 
                                         ? 'No reports found. Submit the first report to get started.' 
                                         : 'No reports match the current filters.'}
@@ -395,6 +408,28 @@ export default function ReportsPage() {
                                         </td>
                                         <td>{formatNumber(report.people_affected)}</td>
                                         <td>{formatNumber(report.houses_damaged)}</td>
+                                        {canApproveReports && (
+                                            <td style={{ whiteSpace: 'nowrap' }}>
+                                                {getChoiceKey(report.status) === 'pending' ? (
+                                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                        <button
+                                                            className="btn btn-success btn-sm"
+                                                            onClick={() => handleVerificationAction(report, 'verified')}
+                                                        >
+                                                            Approve
+                                                        </button>
+                                                        <button
+                                                            className="btn btn-danger btn-sm"
+                                                            onClick={() => handleVerificationAction(report, 'rejected')}
+                                                        >
+                                                            Reject
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Finalized</span>
+                                                )}
+                                            </td>
+                                        )}
                                     </tr>
                                 )
                             })

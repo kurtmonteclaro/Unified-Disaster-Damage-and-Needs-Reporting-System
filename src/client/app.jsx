@@ -4,11 +4,13 @@ import SubmitReportPage from './components/SubmitReportPage.jsx'
 import ReportsPage from './components/ReportsPage.jsx'
 import AnalyticsPage from './components/AnalyticsPage.jsx'
 import Navbar from './components/Navbar.jsx'
+import { ROLES } from './utils/roleSystem.js'
 import './app.css'
 
 export default function App() {
     const [currentPage, setCurrentPage] = useState('home')
     const [successMessage, setSuccessMessage] = useState('')
+    const [userRole] = useState(() => window.localStorage.getItem('uddnrs_role') || ROLES.CITIZEN)
 
     // Simple hash-based routing
     useEffect(() => {
@@ -32,7 +34,7 @@ export default function App() {
             case 'submit':
                 return <SubmitReportPage onSuccess={showSuccessMessage} />
             case 'reports':
-                return <ReportsPage />
+                return <ReportsPage userRole={userRole} />
             case 'analytics':
                 return <AnalyticsPage />
             default:

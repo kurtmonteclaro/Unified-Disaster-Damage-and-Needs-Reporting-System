@@ -1,5 +1,42 @@
 import { gs, GlideDateTime } from '@servicenow/glide'
 
+function canVerifyDisasterReports() {
+    return gs.hasRole('x_2002275_unifie_0.lgu_officer') || gs.hasRole('x_2002275_unifie_0.app_admin')
+}
+
+export function enforceVerificationAccess(current) {
+    try {
+        if (!current || !current.isValidRecord || !current.isValidRecord()) {
+            return
+        }
+
+        if (!current.operation || current.operation() !== 'update') {
+            return
+        }
+
+        const previousStatus = current.previous ? current.previous.getValue('verification_status') : ''
+        const currentStatus = current.getValue('verification_status')
+
+        if (currentStatus === previousStatus) {
+            return
+        }
+
+        if (!canVerifyDisasterReports()) {
+            gs.addErrorMessage('Only LGU Officers and App Admins can approve or reject disaster reports.')
+            if (current.setAbortAction) {
+                current.setAbortAction(true)
+            }
+            return
+        }
+
+        const now = new GlideDateTime()
+        current.setValue('verified_by', gs.getUserID())
+        current.setValue('verification_date', now.getDisplayValue())
+    } catch (error) {
+        gs.warn('Verification access check failed: ' + error.message)
+    }
+}
+
 export function sendHighPriorityNotification(current) {
     const priority = current.getValue('priority_level')
     const severity = current.getValue('damage_severity')

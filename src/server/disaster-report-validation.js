@@ -1,5 +1,60 @@
 import { gs, GlideDateTime, GlideRecord } from '@servicenow/glide'
 
+function getSubmissionKey(current) {
+    const reporterContact = (current.getValue('reporter_contact') || '').toString().trim().toLowerCase()
+    if (reporterContact) {
+        return `contact:${reporterContact}`
+    }
+
+    const reporterName = (current.getValue('reporter_name') || '').toString().trim().toLowerCase()
+    if (reporterName) {
+        return `name:${reporterName}`
+    }
+
+    const clientIp = (gs.getSession && gs.getSession().getClientIP && gs.getSession().getClientIP()) || ''
+    if (clientIp) {
+        return `ip:${clientIp}`
+    }
+
+    return `user:${gs.getUserID() || 'guest'}`
+}
+
+export function validateSubmissionThrottle(current) {
+    const maxReportsPerDay = parseInt(gs.getProperty('x_2002275_unifie_0.max_reports_per_user_per_day', '0'), 10) || 0
+    if (maxReportsPerDay <= 0) {
+        return
+    }
+
+    const submissionKey = getSubmissionKey(current)
+    const lookupValue = submissionKey.split(':').slice(1).join(':')
+    const lookupField = submissionKey.startsWith('contact:')
+        ? 'reporter_contact'
+        : submissionKey.startsWith('name:')
+            ? 'reporter_name'
+            : null
+
+    const gr = new GlideRecord('x_2002275_unifie_0_disaster_report')
+    gr.addQuery('sys_created_on', '>=', 'javascript:gs.daysAgoStart(1)')
+    if (lookupField) {
+        gr.addQuery(lookupField, lookupValue)
+    } else {
+        gr.addQuery('sys_created_by', gs.getUserName())
+    }
+    gr.query()
+
+    let count = 0
+    while (gr.next()) {
+        count += 1
+        if (count >= maxReportsPerDay) {
+            gs.addErrorMessage('You have reached the maximum number of disaster reports allowed for today. Please try again tomorrow.')
+            if (current.setAbortAction) {
+                current.setAbortAction(true)
+            }
+            return
+        }
+    }
+}
+
 function isValidReportNumber(numberValue) {
     return /^DR\d{6}$/.test((numberValue || '').toString().trim())
 }

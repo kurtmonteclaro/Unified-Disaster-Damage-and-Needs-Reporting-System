@@ -371,6 +371,30 @@ export class DisasterReportService {
         }
     }
 
+    async setVerificationStatus(sysId, verificationStatus) {
+        try {
+            const response = await fetch(`/api/now/table/${this.tableName}/${sysId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'X-UserToken': window.g_ck,
+                },
+                body: JSON.stringify({ verification_status: verificationStatus }),
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.error?.message || `HTTP error ${response.status}`)
+            }
+
+            return response.json()
+        } catch (error) {
+            console.error(`Error updating verification status for ${sysId}:`, error)
+            throw error
+        }
+    }
+
     // Delete a disaster report
     async delete(sysId) {
         try {
