@@ -295,13 +295,14 @@ export const x_2002275_unified_disaster_report = Table({
         verification_status: ChoiceColumn({
             label: 'Verification Status',
             choices: {
-                pending: { label: 'Pending Verification', sequence: 0 },
-                verified: { label: 'Verified', sequence: 1 },
-                rejected: { label: 'Rejected', sequence: 2 },
-                resolved: { label: 'Resolved', sequence: 3 },
+                submitted: { label: 'Submitted', sequence: 0 },
+                processing: { label: 'Processing', sequence: 1 },
+                prioritized: { label: 'Prioritized', sequence: 2 },
+                completed: { label: 'Completed', sequence: 3 },
+                flagged_spam: { label: 'Flagged as Spam', sequence: 4 },
             },
             dropdown: 'dropdown_without_none',
-            default: 'pending',
+            default: 'submitted',
         }),
 
         // Timestamps

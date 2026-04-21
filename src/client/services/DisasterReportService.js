@@ -62,7 +62,9 @@ export class DisasterReportService {
             houses_damaged: parseInt(formData.houses_damaged) || 0,
             
             // Set default values for verification workflow
-            verification_status: 'pending',
+            verification_status: 'submitted',
+            u_verification_status: 'submitted',
+            u_damage_description: formData.description || 'Damage assessment pending',
             response_status: 'no_response',
             has_multimedia: false
         }
