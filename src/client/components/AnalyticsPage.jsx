@@ -205,7 +205,7 @@ export default function AnalyticsPage() {
                         <div className="chart-placeholder">
                             <div>
                                 <div style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-secondary)' }}>
-                                    📊 Chart Visualization
+                                    Chart Visualization
                                 </div>
                                 <div style={{ textAlign: 'left', maxWidth: '300px', margin: '0 auto' }}>
                                     {getTopEntries(analytics.byDisasterType).map(([type, count]) => (
@@ -237,7 +237,7 @@ export default function AnalyticsPage() {
                         <div className="chart-placeholder">
                             <div>
                                 <div style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-secondary)' }}>
-                                    📈 Chart Visualization
+                                    Chart Visualization
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'end', height: '200px' }}>
                                     {Object.entries(analytics.bySeverity).map(([severity, count]) => {
@@ -295,7 +295,7 @@ export default function AnalyticsPage() {
                         <div className="chart-placeholder">
                             <div>
                                 <div style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-secondary)' }}>
-                                    🔄 Status Overview
+                                    Status Overview
                                 </div>
                                 <div style={{ display: 'grid', gap: '1rem' }}>
                                     {Object.entries(analytics.byStatus).map(([status, count]) => {
@@ -359,7 +359,7 @@ export default function AnalyticsPage() {
                         <div className="chart-placeholder">
                             <div>
                                 <div style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-secondary)' }}>
-                                    🗺️ Regional Distribution
+                                    Regional Distribution
                                 </div>
                                 <div style={{ textAlign: 'left', maxWidth: '300px', margin: '0 auto', maxHeight: '200px', overflowY: 'auto' }}>
                                     {getTopEntries(analytics.byRegion, 8).map(([region, count]) => {
