@@ -18,12 +18,12 @@ export default function ReportsPage() {
 
     const getCurrentUserRole = () => {
         const nowRoles = window.NOW?.user?.roles || []
-        if (nowRoles.includes('x_2002275.lgu_officer') || nowRoles.includes('x_2002275_unified.lgu_officer') || nowRoles.includes('lgu_officer')) {
+        if (nowRoles.includes('x_2002275.lgu_officer') || nowRoles.includes('x_2002275_unified.lgu_officer') || nowRoles.includes('x_2002275_unifie_0.lgu_officer') || nowRoles.includes('lgu_officer')) {
             return 'lgu_officer'
         }
 
         const fallbackRole = window.g_user?.roles?.find(role =>
-            role === 'x_2002275.lgu_officer' || role === 'x_2002275_unified.lgu_officer' || role === 'lgu_officer'
+            role === 'x_2002275.lgu_officer' || role === 'x_2002275_unified.lgu_officer' || role === 'x_2002275_unifie_0.lgu_officer' || role === 'lgu_officer'
         )
         if (fallbackRole) {
             return 'lgu_officer'

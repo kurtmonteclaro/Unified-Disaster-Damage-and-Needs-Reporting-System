@@ -8,6 +8,7 @@ import {
 } from '../../server/verification-workflow.js'
 
 BusinessRule({
+    $id: 'br_initialize_verification_and_route_lgu_officer',
     name: 'Initialize Verification and Route LGU Officer',
     table: 'x_2002275_unified_disaster_report',
     action: ['insert'],
@@ -20,6 +21,7 @@ BusinessRule({
 })
 
 BusinessRule({
+    $id: 'br_restrict_verification_status_updates',
     name: 'Restrict Verification Status Updates',
     table: 'x_2002275_unified_disaster_report',
     action: ['update'],

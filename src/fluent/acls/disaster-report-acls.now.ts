@@ -38,7 +38,7 @@ Acl({
     type: 'record',
     script: `
         // Only LGU officers can update records (including verification status).
-        answer = gs.hasRole('x_2002275.lgu_officer') || gs.hasRole('x_2002275_unified.lgu_officer');
+        answer = gs.hasRole('x_2002275.lgu_officer') || gs.hasRole('x_2002275_unified.lgu_officer') || gs.hasRole('x_2002275_unifie_0.lgu_officer');
     `,
     active: true
 })

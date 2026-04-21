@@ -1,7 +1,7 @@
 import { gs, GlideDateTime, GlideRecord } from '@servicenow/glide'
 
 function hasLguOfficerRole() {
-    return gs.hasRole('x_2002275.lgu_officer') || gs.hasRole('x_2002275_unified.lgu_officer')
+    return gs.hasRole('x_2002275.lgu_officer') || gs.hasRole('x_2002275_unified.lgu_officer') || gs.hasRole('x_2002275_unifie_0.lgu_officer')
 }
 
 function getFieldValue(record, primaryField, fallbackField) {
@@ -48,6 +48,7 @@ export function routeToRegionalLguOfficer(current) {
     const role = new GlideRecord('sys_user_role')
     role.addQuery('name', 'x_2002275.lgu_officer')
     role.addOrCondition('name', 'x_2002275_unified.lgu_officer')
+    role.addOrCondition('name', 'x_2002275_unifie_0.lgu_officer')
     role.query()
 
     const roleIds = []
