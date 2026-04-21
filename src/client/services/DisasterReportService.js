@@ -3,18 +3,35 @@ export class DisasterReportService {
         this.tableName = 'x_2002275_unifie_0_disaster_report'
     }
 
+    static extractPrimitiveValue(field) {
+        if (field === null || field === undefined) {
+            return ''
+        }
+
+        if (typeof field === 'string' || typeof field === 'number') {
+            return String(field)
+        }
+
+        if (typeof field === 'object') {
+            const preferred = field.value ?? field.display_value ?? ''
+            if (typeof preferred === 'string' || typeof preferred === 'number') {
+                return String(preferred)
+            }
+        }
+
+        return ''
+    }
+
     static formatReportNumber(report) {
-        const rawNumber = report?.number
-        const displayNumber = typeof rawNumber === 'object'
-            ? rawNumber.display_value || rawNumber.value
-            : rawNumber
+        const displayNumber = DisasterReportService.extractPrimitiveValue(report?.number).trim()
 
         if (displayNumber) {
             return displayNumber
         }
 
-        if (report?.sys_id) {
-            return `DR-${String(report.sys_id).slice(-6).toUpperCase()}`
+        const sysId = DisasterReportService.extractPrimitiveValue(report?.sys_id).trim()
+        if (sysId) {
+            return `DR-${sysId.slice(-8).toUpperCase()}`
         }
 
         return ''
@@ -174,6 +191,7 @@ export class DisasterReportService {
                 normalizedReport.affected_individuals = report.affected_individuals
                 normalizedReport.affected_households = report.affected_households
                 normalizedReport.number = DisasterReportService.formatReportNumber(report)
+                normalizedReport.sys_id = DisasterReportService.extractPrimitiveValue(report.sys_id)
 
                 // Backward-compatible aliases for existing UI components
                 normalizedReport.reporter_role = report.reporter_type

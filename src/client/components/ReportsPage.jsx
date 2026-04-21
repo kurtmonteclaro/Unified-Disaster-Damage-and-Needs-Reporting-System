@@ -23,6 +23,22 @@ export default function ReportsPage() {
         applyFilters()
     }, [reports, filters])
 
+    const getChoiceKey = (field) => {
+        const raw = typeof field === 'object'
+            ? (field.value ?? field.display_value ?? '')
+            : field
+
+        return String(raw || '').trim().toLowerCase().replace(/\s+/g, '_')
+    }
+
+    const getDisplayText = (field) => {
+        if (typeof field === 'object') {
+            return field.display_value || field.value || ''
+        }
+
+        return field || ''
+    }
+
     const loadReports = async () => {
         try {
             setLoading(true)
@@ -49,15 +65,13 @@ export default function ReportsPage() {
 
         if (filters.severity) {
             filtered = filtered.filter(report => {
-                const severity = typeof report.severity === 'object' ? report.severity.display_value : report.severity
-                return severity === filters.severity
+                return getChoiceKey(report.severity) === filters.severity
             })
         }
 
         if (filters.status) {
             filtered = filtered.filter(report => {
-                const status = typeof report.status === 'object' ? report.status.display_value : report.status
-                return status === filters.status
+                return getChoiceKey(report.status) === filters.status
             })
         }
 
@@ -89,29 +103,25 @@ export default function ReportsPage() {
     }
 
     const getSeverityBadge = (severity) => {
-        const sev = typeof severity === 'object' ? severity.display_value : severity
-        
+        const sev = getChoiceKey(severity)
+
         switch (sev) {
             case 'minimal':
-            case 'Minimal':
                 return <span className="badge badge-success">Minimal</span>
             case 'moderate':
-            case 'Moderate':
                 return <span className="badge badge-warning">Moderate</span>
             case 'severe':
-            case 'Severe':
                 return <span className="badge badge-danger">Severe</span>
             case 'catastrophic':
-            case 'Catastrophic':
                 return <span className="badge" style={{ backgroundColor: '#8B0000', color: 'white' }}>Catastrophic</span>
             default:
-                return <span className="badge badge-primary">{sev || 'Unknown'}</span>
+                return <span className="badge badge-primary">{getDisplayText(severity) || 'Unknown'}</span>
         }
     }
 
     const getStatusBadge = (status) => {
-        const stat = typeof status === 'object' ? status.display_value : status
-        
+        const stat = getChoiceKey(status)
+
         switch (stat) {
             case 'pending':
                 return <span className="badge badge-primary">Pending Verification</span>
@@ -122,7 +132,7 @@ export default function ReportsPage() {
             case 'resolved':
                 return <span className="badge badge-success">Resolved</span>
             default:
-                return <span className="badge badge-primary">{stat || 'Unknown'}</span>
+                return <span className="badge badge-primary">{getDisplayText(status) || 'Unknown'}</span>
         }
     }
 
@@ -254,8 +264,8 @@ export default function ReportsPage() {
                     <div className="card-content text-center">
                         <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--danger-red)', marginBottom: '0.5rem' }}>
                             {filteredReports.filter(r => {
-                                const sev = typeof r.severity === 'object' ? r.severity.display_value : r.severity
-                                return sev === 'severe' || sev === 'Severe' || sev === 'catastrophic' || sev === 'Catastrophic'
+                                const sev = getChoiceKey(r.severity)
+                                return sev === 'severe' || sev === 'catastrophic'
                             }).length}
                         </div>
                         <h3 className="feature-title">Severe Severity</h3>
@@ -267,8 +277,7 @@ export default function ReportsPage() {
                     <div className="card-content text-center">
                         <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--warning-yellow)', marginBottom: '0.5rem' }}>
                             {filteredReports.filter(r => {
-                                const stat = typeof r.status === 'object' ? r.status.display_value : r.status
-                                return stat === 'verified' || stat === 'Verified'
+                                return getChoiceKey(r.status) === 'verified'
                             }).length}
                         </div>
                         <h3 className="feature-title">Verified Reports</h3>
@@ -349,7 +358,7 @@ export default function ReportsPage() {
                                 return (
                                     <tr key={sysId}>
                                         <td style={{ fontWeight: '500', color: 'var(--accent-blue)' }}>
-                                            {reportNumber || report.sys_id || 'N/A'}
+                                            {reportNumber || 'N/A'}
                                         </td>
                                         <td>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
