@@ -198,14 +198,30 @@ const NGOConfig = UDDNRSConfig.createCustomConfig({
 | `barangay` | String | Barangay/district |
 | `latitude/longitude` | Decimal | GPS coordinates |
 | `damage_type` | Choice | Type of damage reported |
-| `damage_severity` | Choice | Severity level (minimal to catastrophic) |
+| `damage_severity` | Choice | Severity assessment (minimal, moderate, severe, catastrophic) |
 | `damage_description` | Text | Detailed damage description |
 | `affected_households` | Integer | Number of affected households |
 | `affected_individuals` | Integer | Number of affected individuals |
 | `immediate_needs` | Text | Description of immediate needs |
 | `verification_status` | Choice | pending, verified, rejected, resolved |
-| `priority_level` | Choice | Auto-assigned priority level |
+| `priority_level` | Choice | low, medium, high, critical (for response prioritization) |
 | `has_multimedia` | Boolean | Whether attachments are present |
+
+### **Field Mapping for UI Components**
+
+The frontend normalizes database fields for consistent UI interaction:
+
+```javascript
+// Service layer mapping (DisasterReportService.js)
+normalizedReport.severity = report.priority_level        // UI severity filter uses priority_level
+normalizedReport.status = report.verification_status     // UI status filter uses verification_status
+```
+
+**Important**: Frontend filters (`ReportsPage`, `DisasterReportList`) use these normalized fields:
+- **Severity filtering**: Maps to `priority_level` (low, medium, high, critical)
+- **Status filtering**: Maps to `verification_status` (pending, verified, rejected, resolved)
+
+This ensures consistency between what users see in the UI and the actual database values.
 
 ## 🔐 Security & Permissions
 
@@ -247,7 +263,36 @@ graph TD
 - **Dashboard Views**: Real-time status and trends
 - **Export Capabilities**: Data export for external analysis
 
-## 🛠️ Customization Guide
+## � Recent Updates & Fixes
+
+### **Data Mismatch Resolution (v1.x)**
+
+Fixed critical data consistency issues in the Reports filtering module:
+
+#### **Severity Filter Alignment**
+- **Issue**: UI filter displayed "Low, Medium, High" but database held different values
+- **Fix**: Mapped severity filter to `priority_level` field instead of `damage_severity`
+  - Filter now correctly uses: `low`, `medium`, `high`, `critical`
+  - Database field `damage_severity` remains for damage assessment (minimal, moderate, severe, catastrophic)
+  - See [DisasterReportService.js](src/client/services/DisasterReportService.js) line ~181
+
+#### **Status Filter Alignment**
+- **Issue**: UI filter showed "New, In Progress, Resolved, Closed" but database used different values
+- **Fix**: Updated filter dropdown to match actual `verification_status` values
+  - Filter now correctly uses: `pending`, `verified`, `rejected`, `resolved`
+  - Removed case-sensitivity workarounds in filter logic
+  - See [ReportsPage.jsx](src/client/components/ReportsPage.jsx) filtering logic
+
+#### **Badge Function Updates**
+- Updated `getStatusBadge()` to display correct labels for new status values
+- Updated `getSeverityBadge()` to support critical priority level
+- Summary cards now accurately reflect report counts
+
+**Files Modified:**
+- `src/client/services/DisasterReportService.js` - Field mapping normalization
+- `src/client/components/ReportsPage.jsx` - Filter options and badge rendering
+
+## �🛠️ Customization Guide
 
 ### **Adding New Damage Types**
 

@@ -57,11 +57,7 @@ export default function ReportsPage() {
         if (filters.status) {
             filtered = filtered.filter(report => {
                 const status = typeof report.status === 'object' ? report.status.display_value : report.status
-                // Handle both display names and internal values
-                return status === filters.status || 
-                       (filters.status === 'new' && status === 'New') ||
-                       (filters.status === 'in_progress' && (status === 'In Progress' || status === 'in_progress')) ||
-                       (filters.status === 'resolved' && status === 'Resolved')
+                return status === filters.status
             })
         }
 
@@ -105,6 +101,9 @@ export default function ReportsPage() {
             case 'high':
             case 'High':
                 return <span className="badge badge-danger">High</span>
+            case 'critical':
+            case 'Critical':
+                return <span className="badge" style={{ backgroundColor: '#8B0000', color: 'white' }}>Critical</span>
             default:
                 return <span className="badge badge-primary">{sev || 'Unknown'}</span>
         }
@@ -114,18 +113,14 @@ export default function ReportsPage() {
         const stat = typeof status === 'object' ? status.display_value : status
         
         switch (stat) {
-            case 'new':
-            case 'New':
-                return <span className="badge badge-primary">New</span>
-            case 'in_progress':
-            case 'In Progress':
-                return <span className="badge badge-warning">In Progress</span>
+            case 'pending':
+                return <span className="badge badge-primary">Pending Verification</span>
+            case 'verified':
+                return <span className="badge badge-success">Verified</span>
+            case 'rejected':
+                return <span className="badge badge-danger">Rejected</span>
             case 'resolved':
-            case 'Resolved':
                 return <span className="badge badge-success">Resolved</span>
-            case 'closed':
-            case 'Closed':
-                return <span className="badge badge-success">Closed</span>
             default:
                 return <span className="badge badge-primary">{stat || 'Unknown'}</span>
         }
@@ -201,6 +196,7 @@ export default function ReportsPage() {
                         <option value="low">Low</option>
                         <option value="medium">Medium</option>
                         <option value="high">High</option>
+                        <option value="critical">Critical</option>
                     </select>
                 </div>
 
@@ -213,10 +209,10 @@ export default function ReportsPage() {
                         onChange={handleFilterChange}
                     >
                         <option value="">All Statuses</option>
-                        <option value="new">New</option>
-                        <option value="in_progress">In Progress</option>
+                        <option value="pending">Pending Verification</option>
+                        <option value="verified">Verified</option>
+                        <option value="rejected">Rejected</option>
                         <option value="resolved">Resolved</option>
-                        <option value="closed">Closed</option>
                     </select>
                 </div>
 
@@ -259,10 +255,10 @@ export default function ReportsPage() {
                         <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--danger-red)', marginBottom: '0.5rem' }}>
                             {filteredReports.filter(r => {
                                 const sev = typeof r.severity === 'object' ? r.severity.display_value : r.severity
-                                return sev === 'high' || sev === 'High'
+                                return sev === 'high' || sev === 'High' || sev === 'critical' || sev === 'Critical'
                             }).length}
                         </div>
-                        <h3 className="feature-title">High Severity</h3>
+                        <h3 className="feature-title">High/Critical Severity</h3>
                         <p className="feature-description">Critical incidents</p>
                     </div>
                 </div>
@@ -272,11 +268,11 @@ export default function ReportsPage() {
                         <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--warning-yellow)', marginBottom: '0.5rem' }}>
                             {filteredReports.filter(r => {
                                 const stat = typeof r.status === 'object' ? r.status.display_value : r.status
-                                return stat === 'in_progress' || stat === 'In Progress'
+                                return stat === 'verified' || stat === 'Verified'
                             }).length}
                         </div>
-                        <h3 className="feature-title">In Progress</h3>
-                        <p className="feature-description">Active incidents</p>
+                        <h3 className="feature-title">Verified Reports</h3>
+                        <p className="feature-description">Under investigation</p>
                     </div>
                 </div>
 
