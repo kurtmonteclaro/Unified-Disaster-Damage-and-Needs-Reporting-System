@@ -13,8 +13,11 @@ export default function SubmitReportPage({ onSuccess }) {
         region: '',
         province: '',
         city: '',
+        barangay: '',
+        has_multimedia: false,
         people_affected: 0,
         houses_damaged: 0,
+        immediate_needs: '',
         description: '',
         estimated_damage_cost: 0
     })
@@ -54,6 +57,10 @@ export default function SubmitReportPage({ onSuccess }) {
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files || [])
         setSelectedFiles(files)
+        setFormData(prev => ({
+            ...prev,
+            has_multimedia: files.length > 0
+        }))
 
         if (errors.multimedia) {
             setErrors(prev => ({
@@ -94,6 +101,10 @@ export default function SubmitReportPage({ onSuccess }) {
             newErrors.city = 'City/Municipality is required'
         }
 
+        if (!formData.barangay.trim()) {
+            newErrors.barangay = 'Barangay is required'
+        }
+
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
     }
@@ -122,8 +133,11 @@ export default function SubmitReportPage({ onSuccess }) {
                 region: '',
                 province: '',
                 city: '',
+                barangay: '',
+                has_multimedia: false,
                 people_affected: 0,
                 houses_damaged: 0,
+                immediate_needs: '',
                 description: '',
                 estimated_damage_cost: 0
             })
@@ -388,6 +402,27 @@ export default function SubmitReportPage({ onSuccess }) {
                                     </div>
                                 )}
                             </div>
+
+                            <div className="form-group" style={{ marginTop: '1rem' }}>
+                                <label className="form-label" htmlFor="barangay">
+                                    Barangay *
+                                </label>
+                                <input
+                                    type="text"
+                                    id="barangay"
+                                    name="barangay"
+                                    className="form-input"
+                                    value={formData.barangay}
+                                    onChange={handleInputChange}
+                                    placeholder="Enter barangay"
+                                    required
+                                />
+                                {errors.barangay && (
+                                    <div style={{ color: 'var(--danger-red)', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+                                        {errors.barangay}
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         {/* Impact Assessment */}
@@ -442,6 +477,21 @@ export default function SubmitReportPage({ onSuccess }) {
                                     min="0"
                                     step="0.01"
                                     placeholder="Estimated cost of damages"
+                                />
+                            </div>
+
+                            <div className="form-group" style={{ marginTop: '1rem' }}>
+                                <label className="form-label" htmlFor="immediate_needs">
+                                    Immediate Needs
+                                </label>
+                                <textarea
+                                    id="immediate_needs"
+                                    name="immediate_needs"
+                                    className="form-textarea"
+                                    value={formData.immediate_needs}
+                                    onChange={handleInputChange}
+                                    rows="3"
+                                    placeholder="List urgent needs (e.g., food packs, clean water, medicines, temporary shelter)"
                                 />
                             </div>
                         </div>
@@ -508,7 +558,7 @@ export default function SubmitReportPage({ onSuccess }) {
                                     </>
                                 ) : (
                                     <>
-                                        📤 Submit Disaster Report
+                                        Submit Disaster Report
                                     </>
                                 )}
                             </button>
