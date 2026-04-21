@@ -1,6 +1,32 @@
 import '@servicenow/sdk/global'
 import { BusinessRule } from '@servicenow/sdk/core'
-import { sendHighPriorityNotification } from '../../server/verification-workflow.js'
+import {
+    enforceVerificationUpdatePermission,
+    initializeVerificationStatus,
+    routeToRegionalLguOfficer,
+    sendHighPriorityNotification,
+} from '../../server/verification-workflow.js'
+
+BusinessRule({
+    name: 'Initialize Verification and Route LGU Officer',
+    table: 'x_2002275_unified_disaster_report',
+    action: ['insert'],
+    when: 'before',
+    active: true,
+    script: (current: any) => {
+        initializeVerificationStatus(current)
+        routeToRegionalLguOfficer(current)
+    },
+})
+
+BusinessRule({
+    name: 'Restrict Verification Status Updates',
+    table: 'x_2002275_unified_disaster_report',
+    action: ['update'],
+    when: 'before',
+    active: true,
+    script: enforceVerificationUpdatePermission,
+})
 
 // Only keep the essential business rule for notifications (non-blocking)
 BusinessRule({

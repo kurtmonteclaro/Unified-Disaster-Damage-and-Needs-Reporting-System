@@ -30,15 +30,15 @@ Acl({
     active: true
 })
 
-// ACL for Write operations - allow everyone (for now, can be restricted later)
+// ACL for Write operations - restricted to LGU officers for verification workflow control
 Acl({
     $id: Now.ID['acl_disaster_report_write'],
     table: 'x_2002275_unified_disaster_report',
     operation: 'write',
     type: 'record',
     script: `
-        // Allow everyone to update disaster reports for now
-        answer = true;
+        // Only LGU officers can update records (including verification status).
+        answer = gs.hasRole('x_2002275.lgu_officer') || gs.hasRole('x_2002275_unified.lgu_officer');
     `,
     active: true
 })

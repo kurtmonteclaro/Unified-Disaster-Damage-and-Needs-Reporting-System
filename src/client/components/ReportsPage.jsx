@@ -6,6 +6,7 @@ export default function ReportsPage() {
     const [filteredReports, setFilteredReports] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
+    const [userRole, setUserRole] = useState('citizen')
     const [filters, setFilters] = useState({
         region: '',
         severity: '',
@@ -15,7 +16,24 @@ export default function ReportsPage() {
 
     const service = new DisasterReportService()
 
+    const getCurrentUserRole = () => {
+        const nowRoles = window.NOW?.user?.roles || []
+        if (nowRoles.includes('x_2002275.lgu_officer') || nowRoles.includes('x_2002275_unified.lgu_officer') || nowRoles.includes('lgu_officer')) {
+            return 'lgu_officer'
+        }
+
+        const fallbackRole = window.g_user?.roles?.find(role =>
+            role === 'x_2002275.lgu_officer' || role === 'x_2002275_unified.lgu_officer' || role === 'lgu_officer'
+        )
+        if (fallbackRole) {
+            return 'lgu_officer'
+        }
+
+        return localStorage.getItem('userRole') || 'citizen'
+    }
+
     useEffect(() => {
+        setUserRole(getCurrentUserRole())
         loadReports()
     }, [])
 
@@ -81,6 +99,51 @@ export default function ReportsPage() {
             ...prev,
             [name]: value
         }))
+    }
+
+    const getVerificationStatusValue = (report) => {
+        const status = report.u_verification_status || report.verification_status
+        return typeof status === 'object' ? (status.value || status.display_value) : status
+    }
+
+    const getPriorityLevelValue = (report) => {
+        const priority = report.u_priority_level || report.priority_level || report.priority
+        return typeof priority === 'object' ? (priority.display_value || priority.value) : priority
+    }
+
+    const handleVerificationAction = async (report, action) => {
+        const sysId = typeof report.sys_id === 'object' ? report.sys_id.value : report.sys_id
+        if (!sysId) {
+            setError('Unable to update verification status: missing record ID.')
+            return
+        }
+
+        try {
+            const nextStatus = action === 'verify' ? 'verified' : 'rejected'
+
+            // Optimistically update for immediate feedback.
+            setReports(prev => prev.map(item => {
+                const itemId = typeof item.sys_id === 'object' ? item.sys_id.value : item.sys_id
+                if (itemId !== sysId) {
+                    return item
+                }
+                return {
+                    ...item,
+                    verification_status: nextStatus,
+                    u_verification_status: nextStatus,
+                }
+            }))
+
+            if (action === 'verify') {
+                await service.verifyReport(sysId)
+            } else {
+                await service.rejectReport(sysId)
+            }
+        } catch (err) {
+            console.error('Error updating verification status:', err)
+            setError(err.message || 'Failed to update verification status.')
+            await loadReports()
+        }
     }
 
     const clearFilters = () => {
@@ -307,14 +370,17 @@ export default function ReportsPage() {
                             <th>Date</th>
                             <th>Severity</th>
                             <th>Status</th>
+                            <th>Verification</th>
+                            <th>Priority</th>
                             <th>People Affected</th>
                             <th>Houses Damaged</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filteredReports.length === 0 ? (
                             <tr>
-                                <td colSpan="8" className="text-center" style={{ padding: '2rem', color: 'var(--text-secondary)' }}>
+                                <td colSpan="11" className="text-center" style={{ padding: '2rem', color: 'var(--text-secondary)' }}>
                                     {reports.length === 0 
                                         ? 'No reports found. Submit the first report to get started.' 
                                         : 'No reports match the current filters.'}
@@ -350,6 +416,10 @@ export default function ReportsPage() {
                                     ? report.sys_id.value 
                                     : report.sys_id
 
+                                const verificationStatus = getVerificationStatusValue(report) || 'pending'
+                                const priorityLevel = getPriorityLevelValue(report)
+                                const canVerify = userRole === 'lgu_officer' && verificationStatus === 'pending'
+
                                 return (
                                     <tr key={sysId}>
                                         <td style={{ fontWeight: '500', color: 'var(--accent-blue)' }}>
@@ -375,8 +445,40 @@ export default function ReportsPage() {
                                         <td>{formatDate(incidentDate)}</td>
                                         <td>{getSeverityBadge(report.severity)}</td>
                                         <td>{getStatusBadge(report.status)}</td>
+                                        <td>
+                                            <span className="badge badge-primary" style={{ textTransform: 'capitalize' }}>
+                                                {verificationStatus}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span style={{ textTransform: 'capitalize', fontWeight: '500' }}>
+                                                {priorityLevel || 'N/A'}
+                                            </span>
+                                        </td>
                                         <td>{formatNumber(report.people_affected)}</td>
                                         <td>{formatNumber(report.houses_damaged)}</td>
+                                        <td>
+                                            {canVerify ? (
+                                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                    <button
+                                                        className="btn btn-primary"
+                                                        onClick={() => handleVerificationAction(report, 'verify')}
+                                                        style={{ padding: '0.4rem 0.6rem' }}
+                                                    >
+                                                        Verify
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-secondary"
+                                                        onClick={() => handleVerificationAction(report, 'reject')}
+                                                        style={{ padding: '0.4rem 0.6rem' }}
+                                                    >
+                                                        Reject
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <span style={{ color: 'var(--text-secondary)' }}>-</span>
+                                            )}
+                                        </td>
                                     </tr>
                                 )
                             })

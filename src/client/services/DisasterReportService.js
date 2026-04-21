@@ -73,7 +73,7 @@ export class DisasterReportService {
         try {
             const searchParams = new URLSearchParams()
             searchParams.set('sysparm_display_value', 'all')
-            searchParams.set('sysparm_fields', 'sys_id,number,reporter_name,reporter_role,disaster_type,severity,status,region,province,municipality,city_municipality,people_affected,houses_damaged,incident_date,description,contact_number')
+            searchParams.set('sysparm_fields', 'sys_id,number,reporter_name,reporter_role,disaster_type,severity,status,region,u_region,province,municipality,city_municipality,people_affected,houses_damaged,incident_date,description,contact_number,verification_status,u_verification_status,priority_level,u_priority_level,assigned_to')
             searchParams.set('sysparm_query', 'ORDERBYDESCincident_date')
 
             console.log('Fetching disaster reports from:', `/api/now/table/${this.tableName}`)
@@ -99,6 +99,43 @@ export class DisasterReportService {
             console.error('Error fetching disaster reports:', error)
             throw error
         }
+    }
+
+    async updateVerificationStatus(sysId, status) {
+        try {
+            const payload = {
+                verification_status: status,
+                u_verification_status: status,
+            }
+
+            const response = await fetch(`/api/now/table/${this.tableName}/${sysId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'X-UserToken': window.g_ck,
+                },
+                body: JSON.stringify(payload),
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}))
+                throw new Error(errorData.error?.message || `HTTP error ${response.status}`)
+            }
+
+            return response.json()
+        } catch (error) {
+            console.error(`Error updating verification status for report ${sysId}:`, error)
+            throw error
+        }
+    }
+
+    async verifyReport(sysId) {
+        return this.updateVerificationStatus(sysId, 'verified')
+    }
+
+    async rejectReport(sysId) {
+        return this.updateVerificationStatus(sysId, 'rejected')
     }
 
     // Get a single disaster report by sys_id
