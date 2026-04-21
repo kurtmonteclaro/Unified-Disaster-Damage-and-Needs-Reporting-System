@@ -146,6 +146,58 @@ export default function ReportsPage() {
         return number ? Number(number).toLocaleString() : '0'
     }
 
+    const getValue = (value) => (typeof value === 'object' ? value.display_value : value)
+
+    const toTitle = (value) => {
+        if (!value) return 'Unknown'
+        return String(value)
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, (char) => char.toUpperCase())
+    }
+
+    const generateReportSummary = (report) => {
+        const disasterType = toTitle(getValue(report.disaster_type))
+        const severity = toTitle(getValue(report.severity))
+        const status = toTitle(getValue(report.status))
+        const region = getValue(report.region) || 'Unknown region'
+        const city = getValue(report.municipality) || getValue(report.city_municipality) || 'Unknown city'
+        const affected = parseInt(getValue(report.people_affected), 10) || 0
+        const housesDamaged = parseInt(getValue(report.houses_damaged), 10) || 0
+
+        return `${disasterType} incident in ${city}, ${region} is currently ${status} with ${severity} severity. Estimated impact: ${affected.toLocaleString()} people affected and ${housesDamaged.toLocaleString()} houses damaged.`
+    }
+
+    const generateOverallSummary = (items) => {
+        if (!items.length) {
+            return 'No reports are currently available for AI situation analysis.'
+        }
+
+        const highSeverityCount = items.filter((report) => {
+            const severity = (getValue(report.severity) || '').toLowerCase()
+            return severity === 'high'
+        }).length
+
+        const inProgressCount = items.filter((report) => {
+            const status = (getValue(report.status) || '').toLowerCase()
+            return status === 'in_progress' || status === 'in progress'
+        }).length
+
+        const totalAffected = items.reduce((sum, report) => {
+            return sum + (parseInt(getValue(report.people_affected), 10) || 0)
+        }, 0)
+
+        const disasterTypeCounts = items.reduce((acc, report) => {
+            const type = toTitle(getValue(report.disaster_type))
+            acc[type] = (acc[type] || 0) + 1
+            return acc
+        }, {})
+
+        const topDisasterType = Object.entries(disasterTypeCounts)
+            .sort((a, b) => b[1] - a[1])[0]?.[0] || 'Unknown'
+
+        return `AI Situation Summary: ${items.length} reports are currently visible. ${highSeverityCount} high-severity incidents require close monitoring, with ${inProgressCount} active response operations. ${topDisasterType} is the most reported disaster type, and the estimated total affected population is ${totalAffected.toLocaleString()}.`
+    }
+
     if (loading) {
         return (
             <div className="reports-page fade-in">
@@ -296,6 +348,17 @@ export default function ReportsPage() {
                 </div>
             </div>
 
+            <div className="card" style={{ marginBottom: '2rem' }}>
+                <div className="card-content">
+                    <h3 className="feature-title" style={{ marginBottom: '0.75rem' }}>
+                        AI Situation Summary
+                    </h3>
+                    <p className="feature-description" style={{ fontSize: '0.95rem', lineHeight: '1.6' }}>
+                        {generateOverallSummary(filteredReports)}
+                    </p>
+                </div>
+            </div>
+
             {/* Reports Table */}
             <div className="table-container">
                 <table className="table">
@@ -309,12 +372,13 @@ export default function ReportsPage() {
                             <th>Status</th>
                             <th>People Affected</th>
                             <th>Houses Damaged</th>
+                            <th>AI Summary</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filteredReports.length === 0 ? (
                             <tr>
-                                <td colSpan="8" className="text-center" style={{ padding: '2rem', color: 'var(--text-secondary)' }}>
+                                <td colSpan="9" className="text-center" style={{ padding: '2rem', color: 'var(--text-secondary)' }}>
                                     {reports.length === 0 
                                         ? 'No reports found. Submit the first report to get started.' 
                                         : 'No reports match the current filters.'}
@@ -377,6 +441,9 @@ export default function ReportsPage() {
                                         <td>{getStatusBadge(report.status)}</td>
                                         <td>{formatNumber(report.people_affected)}</td>
                                         <td>{formatNumber(report.houses_damaged)}</td>
+                                        <td style={{ minWidth: '320px', color: 'var(--text-secondary)', fontSize: '0.875rem', lineHeight: '1.5' }}>
+                                            {generateReportSummary(report)}
+                                        </td>
                                     </tr>
                                 )
                             })
