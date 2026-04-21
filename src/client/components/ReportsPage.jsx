@@ -311,7 +311,9 @@ export default function ReportsPage() {
                             <th>Location</th>
                             <th>Date</th>
                             <th>Severity</th>
+                            <th>Priority</th>
                             <th>Status</th>
+                            <th>AI Summary</th>
                             <th>People Affected</th>
                             <th>Houses Damaged</th>
                         </tr>
@@ -319,7 +321,7 @@ export default function ReportsPage() {
                     <tbody>
                         {filteredReports.length === 0 ? (
                             <tr>
-                                <td colSpan="8" className="text-center" style={{ padding: '2rem', color: 'var(--text-secondary)' }}>
+                                <td colSpan="10" className="text-center" style={{ padding: '2rem', color: 'var(--text-secondary)' }}>
                                     {reports.length === 0 
                                         ? 'No reports found. Submit the first report to get started.' 
                                         : 'No reports match the current filters.'}
@@ -351,6 +353,9 @@ export default function ReportsPage() {
                                     ? report.incident_date.display_value 
                                     : report.incident_date
 
+                                const priorityLevel = getDisplayText(report.priority_level)
+                                const aiSummary = getDisplayText(report.ai_summary)
+
                                 const sysId = typeof report.sys_id === 'object' 
                                     ? report.sys_id.value 
                                     : report.sys_id
@@ -379,7 +384,15 @@ export default function ReportsPage() {
                                         </td>
                                         <td>{formatDate(incidentDate)}</td>
                                         <td>{getSeverityBadge(report.severity)}</td>
+                                        <td>
+                                            <span className="badge badge-primary">{priorityLevel || 'N/A'}</span>
+                                        </td>
                                         <td>{getStatusBadge(report.status)}</td>
+                                        <td style={{ maxWidth: '280px' }}>
+                                            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                                {aiSummary || 'N/A'}
+                                            </span>
+                                        </td>
                                         <td>{formatNumber(report.people_affected)}</td>
                                         <td>{formatNumber(report.houses_damaged)}</td>
                                     </tr>

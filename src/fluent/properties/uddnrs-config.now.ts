@@ -98,3 +98,63 @@ export const api_rate_limit = Property({
         write: [uddnrs_admin_role]
     }
 })
+
+export const ai_enabled = Property({
+    $id: 'ai_enabled_prop',
+    name: 'x_2002275_unifie_0.ai_enabled',
+    type: 'boolean',
+    value: false,
+    description: 'Enable AI insights generation for disaster reports',
+    roles: {
+        read: [uddnrs_admin_role],
+        write: [uddnrs_admin_role],
+    },
+})
+
+export const ai_api_url = Property({
+    $id: 'ai_api_url_prop',
+    name: 'x_2002275_unifie_0.ai_api_url',
+    type: 'string',
+    value: 'https://api.openai.com/v1/chat/completions',
+    description: 'External AI API endpoint URL',
+    roles: {
+        read: [uddnrs_admin_role],
+        write: [uddnrs_admin_role],
+    },
+})
+
+export const ai_model = Property({
+    $id: 'ai_model_prop',
+    name: 'x_2002275_unifie_0.ai_model',
+    type: 'string',
+    value: 'gpt-4o-mini',
+    description: 'AI model identifier for report analysis',
+    roles: {
+        read: [uddnrs_admin_role],
+        write: [uddnrs_admin_role],
+    },
+})
+
+export const ai_api_key = Property({
+    $id: 'ai_api_key_prop',
+    name: 'x_2002275_unifie_0.ai_api_key',
+    type: 'string',
+    value: '',
+    description: 'API key for external AI service (store securely)',
+    roles: {
+        read: [uddnrs_admin_role],
+        write: [uddnrs_admin_role],
+    },
+})
+
+export const ai_timeout_ms = Property({
+    $id: 'ai_timeout_ms_prop',
+    name: 'x_2002275_unifie_0.ai_timeout_ms',
+    type: 'integer',
+    value: 8000,
+    description: 'Timeout in milliseconds for AI service requests',
+    roles: {
+        read: [uddnrs_admin_role],
+        write: [uddnrs_admin_role],
+    },
+})

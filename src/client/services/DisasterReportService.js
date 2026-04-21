@@ -176,7 +176,7 @@ export class DisasterReportService {
         try {
             const searchParams = new URLSearchParams()
             searchParams.set('sysparm_display_value', 'all')
-            searchParams.set('sysparm_fields', 'sys_id,number,reporter_name,reporter_type,reporter_contact,region,province,municipality,barangay,latitude,longitude,location_description,incident_date,damage_type,damage_severity,damage_description,immediate_needs,has_multimedia,affected_individuals,affected_households,estimated_damage_cost,priority_level,verification_status,sys_created_on')
+            searchParams.set('sysparm_fields', 'sys_id,number,reporter_name,reporter_type,reporter_contact,region,province,municipality,barangay,latitude,longitude,location_description,incident_date,damage_type,damage_severity,damage_description,immediate_needs,has_multimedia,affected_individuals,affected_households,estimated_damage_cost,priority_level,verification_status,ai_summary,ai_priority_prediction,ai_urgency_level,ai_suggested_damage_type,ai_key_needs,sys_created_on')
             searchParams.set('sysparm_query', 'ORDERBYDESCincident_date')
 
             console.log('Fetching disaster reports from:', `/api/now/table/${this.tableName}`)
@@ -220,6 +220,11 @@ export class DisasterReportService {
                 normalizedReport.status = report.verification_status
                 normalizedReport.severity = report.damage_severity
                 normalizedReport.priority_level = report.priority_level
+                normalizedReport.ai_summary = report.ai_summary
+                normalizedReport.ai_priority_prediction = report.ai_priority_prediction
+                normalizedReport.ai_urgency_level = report.ai_urgency_level
+                normalizedReport.ai_suggested_damage_type = report.ai_suggested_damage_type
+                normalizedReport.ai_key_needs = report.ai_key_needs
                 normalizedReport.reported_at = report.sys_created_on || report.incident_date
 
                 return normalizedReport

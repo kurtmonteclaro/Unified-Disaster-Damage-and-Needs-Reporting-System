@@ -297,6 +297,48 @@ export const x_2002275_unifie_0_disaster_report = Table({
             default: 'pending',
         }),
 
+        ai_summary: StringColumn({
+            label: 'AI Summary',
+            maxLength: 1000,
+            mandatory: false,
+        }),
+
+        ai_suggested_damage_type: StringColumn({
+            label: 'AI Suggested Damage Type',
+            maxLength: 100,
+            mandatory: false,
+        }),
+
+        ai_urgency_level: ChoiceColumn({
+            label: 'AI Urgency Level',
+            choices: {
+                low: { label: 'Low', sequence: 0 },
+                medium: { label: 'Medium', sequence: 1 },
+                high: { label: 'High', sequence: 2 },
+                critical: { label: 'Critical', sequence: 3 },
+            },
+            dropdown: 'dropdown_without_none',
+            mandatory: false,
+        }),
+
+        ai_key_needs: StringColumn({
+            label: 'AI Key Needs',
+            maxLength: 1000,
+            mandatory: false,
+        }),
+
+        ai_priority_prediction: ChoiceColumn({
+            label: 'AI Priority Prediction',
+            choices: {
+                low: { label: 'Low', sequence: 0 },
+                medium: { label: 'Medium', sequence: 1 },
+                high: { label: 'High', sequence: 2 },
+                critical: { label: 'Critical', sequence: 3 },
+            },
+            dropdown: 'dropdown_without_none',
+            mandatory: false,
+        }),
+
     },
 
     // Critical settings for API access and cross-scope permissions

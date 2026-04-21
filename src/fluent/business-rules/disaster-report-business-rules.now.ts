@@ -1,6 +1,7 @@
 import '@servicenow/sdk/global'
 import { BusinessRule } from '@servicenow/sdk/core'
 import { sanitizeReportNumber } from '../../server/disaster-report-validation.js'
+import { processAiInsights } from '../../server/disaster-report-ai.js'
 import { sendHighPriorityNotification } from '../../server/verification-workflow.js'
 
 BusinessRule({
@@ -11,6 +12,16 @@ BusinessRule({
     when: 'before',
     active: true,
     script: sanitizeReportNumber,
+})
+
+BusinessRule({
+    $id: 'br_ai_report_insights',
+    name: 'Generate AI Report Insights',
+    table: 'x_2002275_unifie_0_disaster_report',
+    action: ['insert', 'update'],
+    when: 'after',
+    active: true,
+    script: processAiInsights,
 })
 
 // Only keep the essential business rule for notifications (non-blocking)
