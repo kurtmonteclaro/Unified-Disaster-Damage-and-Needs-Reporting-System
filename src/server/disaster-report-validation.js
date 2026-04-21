@@ -1,33 +1,54 @@
-import { gs, GlideDateTime } from '@servicenow/glide'
+import { gs, GlideDateTime, GlideRecord } from '@servicenow/glide'
 
-function buildFallbackNumber(current) {
-    const sysId = (current.getUniqueValue() || '').toString().replace(/[^a-zA-Z0-9]/g, '').toUpperCase()
-    if (!sysId) {
-        return ''
+function isValidReportNumber(numberValue) {
+    return /^DR\d{6}$/.test((numberValue || '').toString().trim())
+}
+
+function syncLegacyReportNumberField(current, numberValue) {
+    if (current.isValidField && current.isValidField('report_number')) {
+        current.setValue('report_number', numberValue)
+    }
+}
+
+function getNextIncrementalReportNumber(current) {
+    const tableName = (current.getTableName && current.getTableName()) || 'x_2002275_unifie_0_disaster_report'
+    const gr = new GlideRecord(tableName)
+    gr.addNotNullQuery('number')
+    gr.addQuery('number', 'STARTSWITH', 'DR')
+    gr.orderByDesc('number')
+    gr.setLimit(20)
+    gr.query()
+
+    let highest = 999
+    while (gr.next()) {
+        const candidate = (gr.getValue('number') || '').toString().trim()
+        const match = /^DR(\d{6})$/.exec(candidate)
+        if (match) {
+            const numeric = parseInt(match[1], 10)
+            if (!isNaN(numeric) && numeric > highest) {
+                highest = numeric
+            }
+            break
+        }
     }
 
-    return `DR${sysId.slice(-6).padStart(6, '0')}`
+    const next = Math.max(highest + 1, 1000)
+    return `DR${next.toString().padStart(6, '0')}`
 }
 
 export function sanitizeReportNumber(current) {
     const currentNumber = (current.getValue('number') || '').toString().trim()
-    const isInvalidFunctionValue = currentNumber.indexOf('org.mozilla.javascript.') === 0
+    const hasValidFormat = isValidReportNumber(currentNumber)
 
-    if (!isInvalidFunctionValue) {
+    if (hasValidFormat) {
+        syncLegacyReportNumberField(current, currentNumber)
         return
     }
 
-    // For inserts, clear the value so platform auto-numbering can run.
-    if (current.operation && current.operation() === 'insert') {
-        current.setValue('number', '')
-        return
-    }
-
-    // For existing bad records, assign a deterministic DR fallback.
-    const fallbackNumber = buildFallbackNumber(current)
-    if (fallbackNumber) {
-        current.setValue('number', fallbackNumber)
-    }
+    // For inserts and updates, guarantee incremental DR###### when invalid or empty.
+    const generatedNumber = getNextIncrementalReportNumber(current)
+    current.setValue('number', generatedNumber)
+    syncLegacyReportNumberField(current, generatedNumber)
 }
 
 export function generateReportNumber(current) {

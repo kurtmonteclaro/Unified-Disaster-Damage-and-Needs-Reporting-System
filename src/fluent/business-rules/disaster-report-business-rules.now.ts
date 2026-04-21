@@ -4,6 +4,7 @@ import { sanitizeReportNumber } from '../../server/disaster-report-validation.js
 import { sendHighPriorityNotification } from '../../server/verification-workflow.js'
 
 BusinessRule({
+    $id: 'br_sanitize_report_number',
     name: 'Sanitize Report Number',
     table: 'x_2002275_unifie_0_disaster_report',
     action: ['insert', 'update'],

@@ -30,21 +30,23 @@ export class DisasterReportService {
     static formatReportNumber(report) {
         const displayNumber = DisasterReportService.extractPrimitiveValue(report?.number).trim()
 
+        const strictFormatMatch = /^DR(\d{6})$/i.exec(displayNumber)
+        if (strictFormatMatch) {
+            return `DR${strictFormatMatch[1]}`
+        }
+
         const legacyHyphenMatch = /^DR-([A-Z0-9]+)$/i.exec(displayNumber)
         if (legacyHyphenMatch) {
-            return `DR${legacyHyphenMatch[1].slice(-6).toUpperCase()}`
+            const digitsOnly = legacyHyphenMatch[1].replace(/\D/g, '')
+            if (digitsOnly) {
+                return `DR${digitsOnly.slice(-6).padStart(6, '0')}`
+            }
         }
 
         const isInvalidRhinoValue = displayNumber.startsWith('org.mozilla.javascript.')
-        const isValidString = !!displayNumber && !isInvalidRhinoValue
 
-        if (isValidString) {
-            return displayNumber
-        }
-
-        const sysId = DisasterReportService.extractPrimitiveValue(report?.sys_id).trim()
-        if (sysId) {
-            return `DR${sysId.slice(-6).toUpperCase()}`
+        if (!isInvalidRhinoValue && /^DR/i.test(displayNumber)) {
+            return ''
         }
 
         return ''
