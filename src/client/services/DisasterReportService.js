@@ -13,9 +13,14 @@ export class DisasterReportService {
         }
 
         if (typeof field === 'object') {
-            const preferred = field.value ?? field.display_value ?? ''
-            if (typeof preferred === 'string' || typeof preferred === 'number') {
-                return String(preferred)
+            const displayValue = field.display_value
+            if (typeof displayValue === 'string' || typeof displayValue === 'number') {
+                return String(displayValue)
+            }
+
+            const actualValue = field.value
+            if (typeof actualValue === 'string' || typeof actualValue === 'number') {
+                return String(actualValue)
             }
         }
 
@@ -25,7 +30,10 @@ export class DisasterReportService {
     static formatReportNumber(report) {
         const displayNumber = DisasterReportService.extractPrimitiveValue(report?.number).trim()
 
-        if (displayNumber) {
+        const isInvalidRhinoValue = displayNumber.startsWith('org.mozilla.javascript.')
+        const isValidString = !!displayNumber && !isInvalidRhinoValue
+
+        if (isValidString) {
             return displayNumber
         }
 
@@ -283,6 +291,7 @@ export class DisasterReportService {
     async create(data, files = []) {
         try {
             const mappedData = this.mapFormDataToTable(data)
+            mappedData.has_multimedia = files.length > 0 || mappedData.has_multimedia === 'true' ? 'true' : 'false'
             console.log('Sending data to ServiceNow:', mappedData)
 
             const response = await fetch(`/api/now/table/${this.tableName}`, {
@@ -320,6 +329,7 @@ export class DisasterReportService {
     async update(sysId, data, files = []) {
         try {
             const mappedData = this.mapFormDataToTable(data)
+            mappedData.has_multimedia = files.length > 0 || mappedData.has_multimedia === 'true' ? 'true' : 'false'
 
             const response = await fetch(`/api/now/table/${this.tableName}/${sysId}`, {
                 method: 'PATCH',

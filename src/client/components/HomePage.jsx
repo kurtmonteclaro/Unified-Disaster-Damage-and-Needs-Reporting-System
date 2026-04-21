@@ -68,13 +68,13 @@ export default function HomePage() {
                             className="btn btn-primary btn-lg"
                             onClick={() => navigateToPage('submit')}
                         >
-                            📝 Submit Report
+                            Submit Report
                         </button>
                         <button 
                             className="btn btn-secondary btn-lg"
                             onClick={() => navigateToPage('reports')}
                         >
-                            👁️ View Reports
+                            View Reports
                         </button>
                     </div>
                 </div>
