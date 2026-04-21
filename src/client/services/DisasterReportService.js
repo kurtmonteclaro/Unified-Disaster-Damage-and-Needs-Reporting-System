@@ -54,6 +54,8 @@ export class DisasterReportService {
             
             // Required fields with defaults
             damage_description: formData.description || 'Damage assessment pending',
+            immediate_needs: formData.immediate_needs || formData.needs || '',
+            u_immediate_needs: formData.immediate_needs || formData.needs || '',
             location_description: `${formData.city || ''}, ${formData.province || ''}, ${formData.region || ''}`.replace(/^,\s*|,\s*$/g, ''),
             damage_severity: 'moderate', // Default severity
             
@@ -75,7 +77,7 @@ export class DisasterReportService {
         try {
             const searchParams = new URLSearchParams()
             searchParams.set('sysparm_display_value', 'all')
-            searchParams.set('sysparm_fields', 'sys_id,number,reporter_name,reporter_role,disaster_type,severity,status,region,province,municipality,city_municipality,people_affected,houses_damaged,incident_date,description,contact_number')
+            searchParams.set('sysparm_fields', 'sys_id,number,reporter_name,reporter_role,disaster_type,severity,status,region,province,municipality,city_municipality,people_affected,houses_damaged,incident_date,description,contact_number,priority_level,u_priority_level,verification_status,u_verification_status')
             searchParams.set('sysparm_query', 'ORDERBYDESCincident_date')
 
             console.log('Fetching disaster reports from:', `/api/now/table/${this.tableName}`)

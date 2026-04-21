@@ -79,10 +79,14 @@ function getPriorityLevel(current) {
 
 export function getAiValidationResult(current) {
     const damageDescription = getFieldValue(current, 'u_damage_description', 'damage_description')
+    const immediateNeeds =
+        getFieldValue(current, 'u_immediate_needs', 'immediate_needs') ||
+        getFieldValue(current, 'u_needs', 'needs')
+    const spamInput = `${damageDescription} ${immediateNeeds}`.trim()
     const priorityLevel = getPriorityLevel(current)
 
     return {
-        is_spam: isSpamText(damageDescription),
+        is_spam: isSpamText(spamInput),
         priority_level: priorityLevel,
     }
 }

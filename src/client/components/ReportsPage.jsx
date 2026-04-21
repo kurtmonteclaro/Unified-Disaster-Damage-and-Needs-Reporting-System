@@ -40,6 +40,14 @@ export default function ReportsPage() {
     const applyFilters = () => {
         let filtered = reports
 
+        const getVerificationStatusValue = (report) => {
+            const value = report.u_verification_status || report.verification_status
+            if (typeof value === 'object') {
+                return value.value || value.display_value || ''
+            }
+            return value || ''
+        }
+
         if (filters.region) {
             filtered = filtered.filter(report => {
                 const region = typeof report.region === 'object' ? report.region.display_value : report.region
@@ -56,12 +64,8 @@ export default function ReportsPage() {
 
         if (filters.status) {
             filtered = filtered.filter(report => {
-                const status = typeof report.status === 'object' ? report.status.display_value : report.status
-                // Handle both display names and internal values
-                return status === filters.status || 
-                       (filters.status === 'new' && status === 'New') ||
-                       (filters.status === 'in_progress' && (status === 'In Progress' || status === 'in_progress')) ||
-                       (filters.status === 'resolved' && status === 'Resolved')
+                const status = String(getVerificationStatusValue(report)).toLowerCase()
+                return status === filters.status
             })
         }
 
@@ -114,18 +118,22 @@ export default function ReportsPage() {
         const stat = typeof status === 'object' ? status.display_value : status
         
         switch (stat) {
-            case 'new':
-            case 'New':
-                return <span className="badge badge-primary">New</span>
-            case 'in_progress':
-            case 'In Progress':
-                return <span className="badge badge-warning">In Progress</span>
-            case 'resolved':
-            case 'Resolved':
-                return <span className="badge badge-success">Resolved</span>
-            case 'closed':
-            case 'Closed':
-                return <span className="badge badge-success">Closed</span>
+            case 'submitted':
+            case 'Submitted':
+                return <span className="badge badge-primary">Submitted</span>
+            case 'processing':
+            case 'Processing':
+                return <span className="badge badge-warning">Processing</span>
+            case 'prioritized':
+            case 'Prioritized':
+                return <span className="badge badge-danger">Prioritized</span>
+            case 'completed':
+            case 'Completed':
+                return <span className="badge badge-success">Completed</span>
+            case 'flagged_spam':
+            case 'Flagged Spam':
+            case 'Flagged_spam':
+                return <span className="badge badge-secondary">Flagged Spam</span>
             default:
                 return <span className="badge badge-primary">{stat || 'Unknown'}</span>
         }
@@ -144,6 +152,14 @@ export default function ReportsPage() {
     const formatNumber = (num) => {
         const number = typeof num === 'object' ? num.display_value : num
         return number ? Number(number).toLocaleString() : '0'
+    }
+
+    const getPriorityValue = (report) => {
+        const value = report.u_priority_level || report.priority_level
+        if (typeof value === 'object') {
+            return value.display_value || value.value || ''
+        }
+        return value || ''
     }
 
     if (loading) {
@@ -213,10 +229,11 @@ export default function ReportsPage() {
                         onChange={handleFilterChange}
                     >
                         <option value="">All Statuses</option>
-                        <option value="new">New</option>
-                        <option value="in_progress">In Progress</option>
-                        <option value="resolved">Resolved</option>
-                        <option value="closed">Closed</option>
+                        <option value="submitted">Submitted</option>
+                        <option value="processing">Processing</option>
+                        <option value="prioritized">Prioritized</option>
+                        <option value="completed">Completed</option>
+                        <option value="flagged_spam">Flagged Spam</option>
                     </select>
                 </div>
 
@@ -271,12 +288,13 @@ export default function ReportsPage() {
                     <div className="card-content text-center">
                         <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--warning-yellow)', marginBottom: '0.5rem' }}>
                             {filteredReports.filter(r => {
-                                const stat = typeof r.status === 'object' ? r.status.display_value : r.status
-                                return stat === 'in_progress' || stat === 'In Progress'
+                                const statRaw = r.u_verification_status || r.verification_status
+                                const stat = typeof statRaw === 'object' ? (statRaw.value || statRaw.display_value) : statRaw
+                                return stat === 'processing' || stat === 'Processing'
                             }).length}
                         </div>
-                        <h3 className="feature-title">In Progress</h3>
-                        <p className="feature-description">Active incidents</p>
+                        <h3 className="feature-title">Processing</h3>
+                        <p className="feature-description">Under automation</p>
                     </div>
                 </div>
 
@@ -307,6 +325,7 @@ export default function ReportsPage() {
                             <th>Date</th>
                             <th>Severity</th>
                             <th>Status</th>
+                            <th>Priority</th>
                             <th>People Affected</th>
                             <th>Houses Damaged</th>
                         </tr>
@@ -314,7 +333,7 @@ export default function ReportsPage() {
                     <tbody>
                         {filteredReports.length === 0 ? (
                             <tr>
-                                <td colSpan="8" className="text-center" style={{ padding: '2rem', color: 'var(--text-secondary)' }}>
+                                <td colSpan="9" className="text-center" style={{ padding: '2rem', color: 'var(--text-secondary)' }}>
                                     {reports.length === 0 
                                         ? 'No reports found. Submit the first report to get started.' 
                                         : 'No reports match the current filters.'}
@@ -349,6 +368,8 @@ export default function ReportsPage() {
                                 const sysId = typeof report.sys_id === 'object' 
                                     ? report.sys_id.value 
                                     : report.sys_id
+                                const priority = getPriorityValue(report)
+                                const verificationStatus = report.u_verification_status || report.verification_status
 
                                 return (
                                     <tr key={sysId}>
@@ -374,7 +395,8 @@ export default function ReportsPage() {
                                         </td>
                                         <td>{formatDate(incidentDate)}</td>
                                         <td>{getSeverityBadge(report.severity)}</td>
-                                        <td>{getStatusBadge(report.status)}</td>
+                                        <td>{getStatusBadge(verificationStatus)}</td>
+                                        <td style={{ textTransform: 'capitalize' }}>{priority || 'N/A'}</td>
                                         <td>{formatNumber(report.people_affected)}</td>
                                         <td>{formatNumber(report.houses_damaged)}</td>
                                     </tr>
