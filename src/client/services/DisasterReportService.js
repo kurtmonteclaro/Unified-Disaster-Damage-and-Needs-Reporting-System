@@ -30,6 +30,11 @@ export class DisasterReportService {
     static formatReportNumber(report) {
         const displayNumber = DisasterReportService.extractPrimitiveValue(report?.number).trim()
 
+        const legacyHyphenMatch = /^DR-([A-Z0-9]+)$/i.exec(displayNumber)
+        if (legacyHyphenMatch) {
+            return `DR${legacyHyphenMatch[1].slice(-6).toUpperCase()}`
+        }
+
         const isInvalidRhinoValue = displayNumber.startsWith('org.mozilla.javascript.')
         const isValidString = !!displayNumber && !isInvalidRhinoValue
 
@@ -39,7 +44,7 @@ export class DisasterReportService {
 
         const sysId = DisasterReportService.extractPrimitiveValue(report?.sys_id).trim()
         if (sysId) {
-            return `DR-${sysId.slice(-8).toUpperCase()}`
+            return `DR${sysId.slice(-6).toUpperCase()}`
         }
 
         return ''

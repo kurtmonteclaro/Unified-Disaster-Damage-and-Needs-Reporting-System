@@ -316,7 +316,7 @@ export const x_2002275_unifie_0_disaster_report = Table({
     autoNumber: {
         prefix: 'DR',
         number: 1000,
-        numberOfDigits: 7,
+        numberOfDigits: 6,
     },
 
     // Enable all operations
